@@ -27,6 +27,7 @@ import scalismo.plot.json.Json
 import scalismo.plot.vegalite.VegaLite
 import scalismo.plot.json.JsonArray
 import scalismo.plot.plottarget.PlotTargetBrowser
+import scalismo.plot.plottarget.PlotTarget
 
 case class Chart(
     dataFrame: DataFrame,
@@ -92,8 +93,8 @@ case class Chart(
         JsonObject(Seq("hconcat" -> collectSpecForCompositeView(concatView)))
     JsonArray(viewSpecs)
 
-  def show(): Unit =
-    PlotTargetBrowser.show(this)
+  def show()(using plotTarget : PlotTarget): Unit =
+    plotTarget.show(this)
     Thread.sleep(
       1000
     ) // TODO replace me with a proper wait for the browser to open
