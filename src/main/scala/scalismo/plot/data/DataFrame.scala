@@ -30,6 +30,13 @@ final case class DataFrame(columns: Seq[Column]):
     */
   def numberOfRows: Int = columns.head.values.length
 
+  /** 
+   * Returns a dataframe with the rows and columns in the given range
+   */
+  def apply(rows : Range = Range(0, rows.length), columns : Range = Range(0, columns.length)) : DataFrame =   
+    val dfWithSelectedColumns = DataFrame(this.columns.slice(columns.start, columns.end))
+    DataFrame.fromRows(dfWithSelectedColumns.rows.slice(rows.start, rows.end))
+
   /** Returns the number of rows in the data frame.
     */
   def rows: Seq[DataRow] =
