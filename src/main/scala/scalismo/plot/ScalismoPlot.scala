@@ -48,17 +48,17 @@ class ScalismoPlot(data: DataFrame) {
   /** create a simple line plot
     */
   def linePlot(
-      xFieldName: String,
-      yFieldName: String,
+      x: String,
+      y: String,
       title: String,
-      seriesName: String = "",
+      series: String = "",
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) = linePlotImpl(
-    xFieldName,
-    yFieldName,
+    x,
+    y,
     title,
-    seriesName,
+    series,
     errorBand = None,
     width,
     height
@@ -67,39 +67,39 @@ class ScalismoPlot(data: DataFrame) {
   /** Create a line plot with an error band.
     */
   def linePlotWithErrorBand(
-      xFieldName: String,
-      yFieldName: String,
-      lowerBandFieldName: String,
-      upperBandFieldName: String,
+      x: String,
+      y: String,
+      lowerBand: String,
+      upperBand: String,
       title: String,
-      seriesName: String = "",
+      series: String = "",
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) = linePlotImpl(
-    xFieldName,
-    yFieldName,
+    x,
+    y,
     title,
-    seriesName,
-    errorBand = Some((lowerBandFieldName, upperBandFieldName)),
+    series,
+    errorBand = Some((lowerBand, upperBand)),
     width,
     height
   )
 
   private def linePlotImpl(
-      xFieldName: String,
-      yFieldName: String,
+      x: String,
+      y: String,
       title: String,
-      seriesName: String = "",
+      series: String = "",
       errorBand: Option[(String, String)] = None,
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) =
 
-    val xChannel = Channel.X(xFieldName, FieldType.Quantitative)
-    val yChannel = Channel.Y(yFieldName, FieldType.Quantitative)
+    val xChannel = Channel.X(x, FieldType.Quantitative)
+    val yChannel = Channel.Y(y, FieldType.Quantitative)
     val encodingLines =
-      if !seriesName.isEmpty then
-        val colorChannel = Channel.Color(seriesName)
+      if !series.isEmpty then
+        val colorChannel = Channel.Color(series)
         Encoding(Seq(xChannel, yChannel, colorChannel))
       else Encoding(Seq(xChannel, yChannel))
 
@@ -123,8 +123,8 @@ class ScalismoPlot(data: DataFrame) {
   /** Create a scatter plot.
     */
   def scatterPlot(
-      xFieldName: String,
-      yFieldName: String,
+      x: String,
+      y: String,
       title: String,
       colorField: String = "",
       width: Int = defaultWidth,
@@ -132,12 +132,12 @@ class ScalismoPlot(data: DataFrame) {
   ) =
 
     val xChannel = Channel.X(
-      xFieldName,
+      x,
       FieldType.Quantitative,
       Seq(ChannelProp.Scale(ScaleSpec.IncludeZero(false)))
     )
     val yChannel = Channel.Y(
-      yFieldName,
+      y,
       FieldType.Quantitative,
       Seq(ChannelProp.Scale(ScaleSpec.IncludeZero(false)))
     )
@@ -153,15 +153,15 @@ class ScalismoPlot(data: DataFrame) {
   /** Creates a boxplot
     */
   def boxplot(
-      seriesName: String,
-      valuesName: String,
+      series: String,
+      values: String,
       title: String,
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) =
-    val xChannel = Channel.X(seriesName, FieldType.Nominal)
+    val xChannel = Channel.X(series, FieldType.Nominal)
     val yChannel = Channel.Y(
-      valuesName,
+      values,
       FieldType.Quantitative,
       Seq(ChannelProp.Scale(ScaleSpec.IncludeZero(false)))
     )
@@ -174,20 +174,20 @@ class ScalismoPlot(data: DataFrame) {
     * plot, where the x-axis is the index of the values in the given array.
     */
   def tracePlot(
-      valuesFieldName: String,
+      values: String,
       title: String,
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) = {
 
-    val values = data.column(valuesFieldName).values
+    val traceValues = data.column(values).values
     val iterations =
-      Column.ofDiscretes(Seq.range(0, values.length), "Iteration")
+      Column.ofDiscretes(Seq.range(0, traceValues.length), "Iteration")
 
     val fullData = DataFrame(Seq(iterations)).union(data)
 
     val xChannel = Channel.X("Iteration", FieldType.Quantitative)
-    val yChannel = Channel.Y(valuesFieldName, FieldType.Quantitative)
+    val yChannel = Channel.Y(values, FieldType.Quantitative)
     val encoding = Encoding(Seq(xChannel, yChannel))
 
     val view = SingleView(Mark.Line, encoding)
@@ -198,7 +198,7 @@ class ScalismoPlot(data: DataFrame) {
   /** Creates a histogram plot.
     */
   def histogram(
-      xFieldName: String,
+      x: String,
       title: String,
       width: Int = defaultWidth,
       height: Int = defaultHeight
@@ -207,12 +207,12 @@ class ScalismoPlot(data: DataFrame) {
     val encoding = Encoding(
       Seq(
         Channel.X(
-          xFieldName,
+          x,
           FieldType.Quantitative,
           Seq(ChannelProp.Bin(true))
         ),
         Channel.Y(
-          xFieldName,
+          x,
           FieldType.Quantitative,
           Seq(ChannelProp.Aggregate(AggregateType.Count))
         )
