@@ -90,6 +90,14 @@ final case class DataFrame(columns: Seq[Column]):
     )
     DataFrame.fromRows(rows ++ other.rows)
 
+  /** 
+   * Appends a new column to the dataframe
+   */
+  def appendColumn(column: Column): DataFrame =
+    DataFrame(columns :+ column)
+
+
+
   /** Returns a new dataframe consisting of only the rows whose predicate is
     * true.
     */
@@ -157,6 +165,19 @@ object DataFrame:
       Column(firstRow(colNum)._1, colValues)
 
     DataFrame(data)
+
+
+  /** Constructs a dataframe by evaluating the function the given points xs
+    */
+  def fromFunction(f : Function1[Double, Double], xValues: Seq[Double], columnNameDomain : String = "x", columnNameCodomain : String = "y"): DataFrame =  
+    val yValues = xValues.map(f)
+    DataFrame.fromColumns(Seq(Column.ofContinuous(xValues, columnNameDomain), Column.ofContinuous(yValues, columnNameCodomain)))
+
+  /**
+   * Constructs a dataframe from the given columns
+   */
+  def fromColumns(columns: Seq[Column]): DataFrame =
+    DataFrame(columns)
 
   /** Represents a column of a data frame
     */
