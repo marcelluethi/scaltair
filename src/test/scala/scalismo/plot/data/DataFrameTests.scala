@@ -87,4 +87,29 @@ class DataFrameTests extends munit.FunSuite {
     assertEquals(newDf.rows.length, 2)
   }
 
+  test("two dataframes with the same columns can be concatenated") {
+    val df1 = DataFrame(Seq(
+      Column.ofContinuous(Seq.fill(2)(1.0), "col1"),
+      Column.ofContinuous(Seq.fill(2)(2.0), "col2"),
+      )
+    )
+
+    val df2 = DataFrame(Seq(
+      Column.ofContinuous(Seq.fill(2)(3.0), "col1"),
+      Column.ofContinuous(Seq.fill(2)(4.0), "col2"),
+      
+      )
+    )
+
+    val expecteded = DataFrame(Seq(
+      Column.ofContinuous(Seq.fill(2)(1.0) ++ Seq.fill(2)(3.0), "col1"),
+      Column.ofContinuous(Seq.fill(2)(3.0) ++ Seq.fill(2)(4.0), "col2")
+      )
+    )
+
+    println("expected " +expecteded)
+    println(df1.concat(df2))
+    assertEquals(df1.concat(df2), expecteded)
+
+  }
 }

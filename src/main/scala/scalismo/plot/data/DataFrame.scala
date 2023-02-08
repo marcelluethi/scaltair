@@ -232,8 +232,13 @@ object DataFrame:
         columnMap.get(col.name) match
           case Some(values) => columnMap(col.name) = values :+ col.values.head
           case None => columnMap(col.name) = Seq(col.values.head)
-        
-    val data = columnMap.map((colName, values) => Column(colName, values)).toSeq
+      
+    // we need to make sure that the columns are in the same order as in the first row
+    // Therefore we use the columns of the first row as a reference
+    val firstRow = rows.head
+    assert(firstRow.columns.map(_.name).toSet == columnMap.keys, "all columns must be present in all rows")    
+    
+    val data = firstRow.columns.map(col => Column(col.name, columnMap(col.name))).toSeq
     DataFrame(data)
 
 
