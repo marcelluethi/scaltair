@@ -28,7 +28,7 @@ final case class Data(data: DataFrame) extends VegaLite:
   override def spec: JsonObject =
     val dataJson =
       for row <- data.rows yield
-        val fieldsJson = for field <- row yield
+        val fieldsJson = for field <- row.toSeq yield
           val DataCell(fieldId, fieldValue) = field
           fieldId -> JsonString(fieldValue.toString)
         JsonObject(fieldsJson)

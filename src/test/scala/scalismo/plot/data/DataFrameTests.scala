@@ -17,8 +17,9 @@
 package scalismo.plot.data
 
 import java.io.File
-import scalismo.plot.data.DataFrame.{DataRow}
-import scalismo.plot.data.Column
+
+import scalismo.plot.data.DataFrame.Column
+import scalismo.plot.data.DataFrame.CellValue
 
 class DataFrameTests extends munit.FunSuite {
 
@@ -76,14 +77,14 @@ class DataFrameTests extends munit.FunSuite {
     val col1 = Column.ofContinuous(Seq(1.0, 2.0, 3.0), "col1")
 
     val df = DataFrame(Seq(col1))
-    val newDf = df.filter(row =>
-      row
-        .find(cell => cell.name == "col1")
-        .map(_.value.asInstanceOf[Double] > 1.1)
-        .getOrElse(false)
-    )
+    val newDf = df.filter(row => 
+      row("col1") match 
+        case CellValue.Continuous(v) => v > 1.0
+        case _ => false
+    ) 
+    print(newDf)
 
-    assertEquals(newDf.rows.length, 3)
+    assertEquals(newDf.rows.length, 2)
   }
 
 }

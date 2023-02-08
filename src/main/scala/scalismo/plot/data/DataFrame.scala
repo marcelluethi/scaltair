@@ -16,15 +16,112 @@
  */
 package scalismo.plot.data
 
-import DataFrame.{DataRow, DataCell, Column}
+import DataFrame.{DataCell, Column}
 import scala.util.Try
 import javax.xml.crypto.Data
 import scalismo.plot.ScalismoPlot
 import scala.collection.mutable
+import scala.io.Codec
+import java.nio.file.Path
+import scalismo.plot.data.DataFrame.CellValue
+
+
+trait DataFrameOps[A <: DataFrameOps[A]]: 
+
+  def columns: Seq[Column]  
+
+  def fromColumns(seq : Seq[Column]) : A
+
+  /** Returns a new dataframe consisting of the selected columns.
+    */
+  def select(columnNames: Seq[String]): A  =
+    val selectedColumns =
+      columnNames
+        .map(colName => columns.find((c: Column) => c.name == colName))
+        .flatten
+    fromColumns(selectedColumns)
+
+  /** Returns a new dataframe, which is the union of the columns in this
+    * dataframe and the dataframe passed as an argument.
+    */
+  def union(other: A): A =
+    require(
+      columns.forall(col => col._2.length == columns.head._2.length),
+      "all columns have the same number of elements"
+    )
+
+    val sameColumns = columns.map(_._1).intersect(other.columns.map(_._1))
+
+    fromColumns(
+      columns ++ other.columns.filterNot(col => sameColumns.contains(col._1))
+    )
+
+  /** Returns the column with the given name
+    */
+  def column(name: String): Column =
+    columns.find(col => col.name == name).get
+
+
+
+  /** A printout of the dataframe with the fields aligned in columns
+    */
+  def formatAsString(rows : Seq[DataRow]): String =
+    val lines = mutable.ListBuffer.empty[String]
+    val columnTitles = columns.map(_.name)
+    val columnWidths = columns.map(col =>
+      Math.max(col.values.map(_.toString.length).max, col.name.length)
+    )
+    val columnSeparator = "|"
+    val rowSeparator = "+" + columnWidths.map(w => "-" * w).mkString("+") + "+"
+    val rowFormat = columnWidths.zipWithIndex
+      .map { case (w, i) => s"%${w}s" }
+      .mkString("|", "|", "|")
+    lines.append(rowSeparator)
+    lines.append(rowFormat.format(columnTitles: _*))
+    lines.append(rowSeparator)
+    for (row <- rows) {
+      lines.append(rowFormat.format(row.toSeq.map(_.value): _*))
+    }
+    lines.mkString("\n")
+
+
+
+
+final case class DataRow(columns : Seq[DataFrame.Column]) extends DataFrameOps[DataRow]:
+
+  def fromColumns(seq : Seq[Column]) : DataRow = 
+    require (seq.forall(_.values.length == 1), "all columns have exactly one element")
+    DataRow(seq)
+
+  def apply(columns : Range = Range(0, columns.length)) : DataRow =   
+    DataRow(this.columns.slice(columns.start, columns.end))    
+
+  def apply(columnName : String) : CellValue = select(Seq(columnName)).columns.head.values.head
+
+  def apply(index : Int) : DataCell = 
+    val col = columns(index)
+    DataCell(col.name, col.values.head)
+
+  def length : Int = columns.length
+
+  def map(f : DataCell => CellValue) : DataRow = 
+    DataRow(columns.map(col => Column(col.name, col.values.map(value => f(DataCell(col.name, value))))))
+
+  def toSeq : Seq[DataCell] = 
+    columns.map(col => DataCell(col.name, col.values.head))
+
+  def toMap : Map[String, CellValue] = 
+    columns.map(col => col.name -> col.values.head).toMap
+
+  override def toString() : String = 
+    formatAsString(Seq(this))
+  
 
 /** A labelled sequence of columns of data.
   */
-final case class DataFrame(columns: Seq[Column]):
+final case class DataFrame(columns: Seq[DataFrame.Column]) extends DataFrameOps[DataFrame]:
+
+  override def fromColumns(columns: Seq[Column]): DataFrame = DataFrame(columns)
 
   /** Returns the number of rows in this data frame
     */
@@ -37,7 +134,8 @@ final case class DataFrame(columns: Seq[Column]):
     val dfWithSelectedColumns = DataFrame(this.columns.slice(columns.start, columns.end))
     DataFrame.fromRows(dfWithSelectedColumns.rows.slice(rows.start, rows.end))
 
-  /** Returns the number of rows in the data frame.
+
+  /** Returns the rows of the dataframe
     */
   def rows: Seq[DataRow] =
 
@@ -47,35 +145,13 @@ final case class DataFrame(columns: Seq[Column]):
     )
 
     val nRows = columns.head.values.length
-    val rowData =
-      for (i <- 0 until nRows)
-        yield for (Column(colId, data) <- columns)
-          yield DataCell(colId, data(i))
-    rowData
+    
+    for (i <- 0 until nRows) yield 
+      val rowData = for (DataFrame.Column(colId, data) <- columns) yield 
+        DataFrame.Column(colId, Seq(data(i)))
+      DataRow(rowData)
 
-  /** Returns a new dataframe consisting of the selected columns.
-    */
-  def select(columnNames: Seq[String]): DataFrame =
-    val selectedColumns =
-      columnNames
-        .map(colName => columns.find((c: Column) => c.name == colName))
-        .flatten
-    DataFrame(selectedColumns)
 
-  /** Returns a new dataframe, which is the union of the columns in this
-    * dataframe and the dataframe passed as an argument.
-    */
-  def union(other: DataFrame): DataFrame =
-    require(
-      columns.forall(col => col._2.length == columns.head._2.length),
-      "all columns have the same number of elements"
-    )
-
-    val sameColumns = columns.map(_._1).intersect(other.columns.map(_._1))
-
-    DataFrame(
-      columns ++ other.columns.filterNot(col => sameColumns.contains(col._1))
-    )
 
   /** Returns a new dataframe with the rows of this dataframe and the one passed
     * as arguments concatenated. It is required that both dataframes have
@@ -102,42 +178,31 @@ final case class DataFrame(columns: Seq[Column]):
     * true.
     */
   def filter(predicate: DataRow => Boolean): DataFrame =
-    DataFrame.fromRows(rows.filter(predicate))
 
-  /** Returns the column with the given name
-    */
-  def column(name: String): Column =
-    columns.find(col => col.name == name).get
+    val filteredRows = for row <- rows yield
+      if predicate(row) then Some(row) else None
+    DataFrame.fromRows(filteredRows.flatten)
 
-  /** A printout of the dataframe with the fields aligned in columsn
-    */
-  override def toString: String =
-    val lines = mutable.ListBuffer.empty[String]
-    val columnTitles = columns.map(_.name)
-    val columnWidths = columns.map(col =>
-      Math.max(col.values.map(_.toString.length).max, col.name.length)
-    )
-    val columnSeparator = "|"
-    val rowSeparator = "+" + columnWidths.map(w => "-" * w).mkString("+") + "+"
-    val rowFormat = columnWidths.zipWithIndex
-      .map { case (w, i) => s"%${w}s" }
-      .mkString("|", "|", "|")
-    lines.append(rowSeparator)
-    lines.append(rowFormat.format(columnTitles: _*))
-    lines.append(rowSeparator)
-    for (row <- rows) {
-      lines.append(rowFormat.format(row.map(_.value).toArray: _*))
-    }
-    lines.mkString("\n")
+  def map(f: DataRow => DataRow): DataFrame =
+    DataFrame.fromRows(rows.map(f))
+
+
+  override def toString(): String = 
+    formatAsString(rows)
 
   def plot: ScalismoPlot = ScalismoPlot(this)
 
 object DataFrame:
-  type DataRow = Seq[DataCell]
 
   /** Creates a dataframe from the given csv file
     */
-  def fromCSV(file: java.io.File, separator: String = ","): Try[DataFrame] =
+  def fromCSV(path : Path, separator: String)(using codec : Codec): Try[DataFrame] =
+    fromCSV(path.toFile, separator)
+
+
+  /** Creates a dataframe from the given csv file
+    */
+  def fromCSV(file: java.io.File, separator: String = ",")(using codec : Codec): Try[DataFrame] =
     Try {
       val lines = scala.io.Source.fromFile(file).getLines().toList
       val header = lines.head.split(separator).toSeq
@@ -157,22 +222,22 @@ object DataFrame:
   /** Constructs a dataframe from the given rows
     */
   def fromRows(rows: Seq[DataRow]): DataFrame =
-    val firstRow = rows.headOption.getOrElse(Seq.empty)
-    val labels = firstRow.map(_.name)
+    
+    // contains the colums that are found in rows as key 
+    // and the corresponding value is the sequence of all values found in the rows
+    val columnMap = mutable.Map[String, Seq[CellValue]]()
 
-    val data = for (colNum <- 0 until firstRow.length) yield
-      val colValues = for (row <- rows) yield row(colNum)._2
-      Column(firstRow(colNum)._1, colValues)
-
+    for (row <- rows) do
+      for (col <- row.columns) do
+        columnMap.get(col.name) match
+          case Some(values) => columnMap(col.name) = values :+ col.values.head
+          case None => columnMap(col.name) = Seq(col.values.head)
+        
+    val data = columnMap.map((colName, values) => Column(colName, values)).toSeq
     DataFrame(data)
 
 
-  /** Constructs a dataframe by evaluating the function the given points xs
-    */
-  def fromFunction(f : Function1[Double, Double], xValues: Seq[Double], columnNameDomain : String = "x", columnNameCodomain : String = "y"): DataFrame =  
-    val yValues = xValues.map(f)
-    DataFrame.fromColumns(Seq(Column.ofContinuous(xValues, columnNameDomain), Column.ofContinuous(yValues, columnNameCodomain)))
-
+  
   /**
    * Constructs a dataframe from the given columns
    */
