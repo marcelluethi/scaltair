@@ -2,7 +2,7 @@ lazy val root = (project in file("."))
   .settings(
     organization := "ch.unibas.cs.gravis",
     name := """scalismo-plot""",
-    version := "0.1-SNAPSHOT",
+    version := "0.3-SNAPSHOT",
     scalaVersion := "3.1.0",
     
     homepage := Some(url("https://github.com/marcelluethi/scalismo-plot")),
@@ -33,7 +33,20 @@ lazy val root = (project in file("."))
     }),
     libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
     mdocIn := new java.io.File("docs/mdoc"),
-    mdocOut := new java.io.File("docs/")
+    mdocOut := new java.io.File("docs/"), 
+    libraryDependencies += ("sh.almond" % "scala-kernel-api" % "0.13.0" % Provided)
+        .cross(CrossVersion.for3Use2_13With("", ".7"))
+        .exclude("com.lihaoyi", "geny_2.13")
+        .exclude("com.lihaoyi", "sourcecode_2.13")
+        .exclude("com.lihaoyi", "fansi_2.13")
+        .exclude("com.lihaoyi", "os-lib_2.13")
+        .exclude("com.lihaoyi", "pprint_2.13")
+        .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
+        .exclude("com.github.jupyter", "jvm-repr"),
+
+
+
+
   )
 
   .enablePlugins(MdocPlugin)

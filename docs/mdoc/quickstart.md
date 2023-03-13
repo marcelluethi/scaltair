@@ -3,6 +3,7 @@
 To run the code in this tutorial, we need the following imports 
 ```scala mdoc:silent
 import scalismo.plot.data.*
+import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
 ```
 
 ## Organising the data
@@ -47,8 +48,8 @@ The simplest plot we can create is
 a line plot
 ```scala mdoc:silent
   df.plot.linePlot(
-    xFieldName = "x", 
-    yFieldName = "sin(x)",  
+    x = "x", 
+    y = "sin(x)",  
     title=" A line plot"
   ).show()
 ``` 
@@ -62,8 +63,8 @@ The result looks as follows:
 Similarly, we could plot the second function using 
 ```scala mdoc:silent
 df.plot.linePlot(
-  xFieldName = "x", 
-  yFieldName = "x squared",  
+  x = "x", 
+  y = "x squared",  
   title=" Another line plot"
 ).show()
 ```
@@ -106,9 +107,9 @@ This new data frame can then be plotted.
 ```scala mdoc:silent
     dfSeries1.concat(dfSeries2)
       .plot.linePlot(
-        xFieldName = "x", 
-        yFieldName = "y", 
-        seriesName = "series", 
+        x = "x", 
+        y = "y", 
+        series = "series", 
         title = "Series plot")
       .show()
 ```
@@ -124,8 +125,8 @@ in the following examples.
 ##### Scatterplot
 ```scala mdoc:silent
 boneData.plot.scatterPlot(
-  xFieldName = "stature", 
-  yFieldName = "bone-length", 
+  x = "stature", 
+  y = "bone-length", 
   title = "scatterplot", 
   colorField = "sex").show()
 ```
@@ -153,8 +154,8 @@ val r = scala.util.Random(42)
   )
   .plot
   .boxplot(
-    seriesName = "series", 
-    valuesName = "values", 
+    series = "series", 
+    values = "values", 
     title ="Boxplot"
   ).show()
 ```
@@ -165,7 +166,7 @@ val r = scala.util.Random(42)
 
 ```scala mdoc:silent
 boneData.plot.histogram(
-  xFieldName = "stature", 
+  x = "stature", 
   title = "Stature").show()
 ```
 
@@ -197,10 +198,10 @@ val dfWithError = DataFrame(
       )
     )
 dfWithError.plot.linePlotWithErrorBand(
-  xFieldName = "x", 
-  yFieldName = "x squared",  
-  lowerBandFieldName = "lower", 
-  upperBandFieldName = "upper", 
+  x = "x", 
+  y = "x squared",  
+  lowerBand = "lower", 
+  upperBand = "upper", 
   title=" A line plot with error bars"
 ).show()
 ```

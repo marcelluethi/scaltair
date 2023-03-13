@@ -34,7 +34,8 @@ trait PlotTarget:
   def show(chart: Chart): Unit
 
 
-object PlotTarget:
+object PlotTargets:
+  
   given plotTargetBrowser : PlotTarget = PlotTargetBrowser
   given plotTargetJupyter : PlotTarget = PlotTargetJupyter
 
