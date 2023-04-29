@@ -93,7 +93,7 @@ case class Chart(
         JsonObject(Seq("hconcat" -> collectSpecForCompositeView(concatView)))
     JsonArray(viewSpecs)
 
-  def show()(using plotTarget : PlotTarget): Unit =
+  def show()(using plotTarget: PlotTarget): Unit =
     plotTarget.show(this)
     Thread.sleep(
       1000

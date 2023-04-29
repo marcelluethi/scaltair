@@ -77,39 +77,49 @@ class DataFrameTests extends munit.FunSuite {
     val col1 = Column.ofContinuous(Seq(1.0, 2.0, 3.0), "col1")
 
     val df = DataFrame(Seq(col1))
-    val newDf = df.filter(row => 
-      row("col1") match 
+    val newDf = df.filter(row =>
+      row("col1") match
         case CellValue.Continuous(v) => v > 1.0
-        case _ => false
-    ) 
+        case _                       => false
+    )
     print(newDf)
 
     assertEquals(newDf.rows.length, 2)
   }
 
   test("two dataframes with the same columns can be concatenated") {
-    val df1 = DataFrame(Seq(
-      Column.ofContinuous(Seq.fill(2)(1.0), "col1"),
-      Column.ofContinuous(Seq.fill(2)(2.0), "col2"),
+    val df1 = DataFrame(
+      Seq(
+        Column.ofContinuous(Seq.fill(2)(1.0), "col1"),
+        Column.ofContinuous(Seq.fill(2)(2.0), "col2")
       )
     )
 
-    val df2 = DataFrame(Seq(
-      Column.ofContinuous(Seq.fill(2)(3.0), "col1"),
-      Column.ofContinuous(Seq.fill(2)(4.0), "col2"),
-      
+    val df2 = DataFrame(
+      Seq(
+        Column.ofContinuous(Seq.fill(2)(3.0), "col1"),
+        Column.ofContinuous(Seq.fill(2)(4.0), "col2")
       )
     )
 
-    val expecteded = DataFrame(Seq(
-      Column.ofContinuous(Seq.fill(2)(1.0) ++ Seq.fill(2)(3.0), "col1"),
-      Column.ofContinuous(Seq.fill(2)(3.0) ++ Seq.fill(2)(4.0), "col2")
+    val expecteded = DataFrame(
+      Seq(
+        Column.ofContinuous(Seq.fill(2)(1.0) ++ Seq.fill(2)(3.0), "col1"),
+        Column.ofContinuous(Seq.fill(2)(2.0) ++ Seq.fill(2)(4.0), "col2")
       )
     )
 
-    println("expected " +expecteded)
-    println(df1.concat(df2))
     assertEquals(df1.concat(df2), expecteded)
 
   }
+
+  test("accessing an element retrives the right elemnt") {
+    val url = getClass.getResource("/test.csv")
+    val df = DataFrame.fromCSV(new File(url.getPath), ",")
+    assert(df.isSuccess, "data frame could not be loaded")
+    assertEquals(df.get.at(3, "id").asNominal.value, "rmi-femur-11")
+    assertEquals(df.get.at(0, "stature").asContinuous.value.toInt, 1580)
+
+  }
+
 }

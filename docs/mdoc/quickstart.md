@@ -37,6 +37,7 @@ Instead of specifying the data manually, we can read them from a csv file:
 val boneData = DataFrame.fromCSV(new java.io.File("data.csv")).get
 ```
 
+
 ## Plotting the data
 
 Organizing the data in data frames give us enough structure that we can 
