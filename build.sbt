@@ -2,8 +2,8 @@ lazy val root = (project in file("."))
   .settings(
     organization := "ch.unibas.cs.gravis",
     name := """scalismo-plot""",
-    version := "0.3-SNAPSHOT",
-    scalaVersion := "3.1.0",
+    version := "0.4-SNAPSHOT",
+    scalaVersion := "3.2.0",
     
     homepage := Some(url("https://github.com/marcelluethi/scalismo-plot")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),

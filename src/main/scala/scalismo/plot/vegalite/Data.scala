@@ -21,15 +21,35 @@ import scalismo.plot.json.JsonString
 import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonNumber
-import scalismo.plot.data.*
-import scalismo.plot.data.DataFrame.*
+import scalismo.plot.vegalite.Data.DataValue
+import scalismo.plot.vegalite.Data.ColumnData
 
-final case class Data(data: DataFrame) extends VegaLite:
+final case class Data(data: ColumnData) extends VegaLite:
+  require(
+    data.values.forall(_.size == data.values.head.size),
+    "All data fields must have the same size"
+  )
+  val numRows = data.head._2.size
   override def spec: JsonObject =
     val dataJson =
-      for row <- data.rows yield
-        val fieldsJson = for field <- row.toSeq yield
-          val DataCell(fieldId, fieldValue) = field
-          fieldId -> JsonString(fieldValue.toString)
-        JsonObject(fieldsJson)
-    JsonObject(Seq("values" -> JsonArray(dataJson)))
+      for row <- 0 until numRows yield
+        val fieldsJson = for fieldId <- data.keys yield
+          val value = data(fieldId)(row)
+          val valueJson = value match
+            case DataValue.Nominal(value)      => JsonString(value)
+            case DataValue.Quantitative(value) => JsonNumber(value)
+          fieldId -> valueJson
+        JsonObject(fieldsJson.toSeq)
+    JsonObject(Seq("values" -> JsonArray(dataJson.toSeq)))
+
+object Data:
+
+  type ColumnName = String
+
+  /** A map from column names to the data values in the column.
+    */
+  type ColumnData = Map[ColumnName, Seq[DataValue]]
+
+  enum DataValue:
+    case Nominal(value: String)
+    case Quantitative(value: Double)
