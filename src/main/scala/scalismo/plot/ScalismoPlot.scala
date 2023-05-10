@@ -187,7 +187,7 @@ class ScalismoPlot(data: DataFrame) {
     val fullData = DataFrame(Seq(iterations)).union(data)
 
     val xChannel = Channel.X("Iteration", FieldType.Quantitative)
-    val yChannel = Channel.Y(values, FieldType.Quantitative)
+    val yChannel = Channel.Y(values, FieldType.Quantitative, Seq(ChannelProp.Scale(ScaleSpec.IncludeZero(false))))          
     val encoding = Encoding(Seq(xChannel, yChannel))
 
     val view = SingleView(Mark.Line, encoding)
