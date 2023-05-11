@@ -17,14 +17,15 @@
 package scalismo.plot
 
 import scalismo.plot.plots.Plot
-import scalismo.plot.vegalite.Chart
 import scalismo.plot.data.DataFrame
 import scalismo.plot.data.DataFrame.*
-import scalismo.plot.vegalite.Data.DataValue
+
 import scalismo.plot.plots.Channel
 import scalismo.plot.plots.Scale
 import scalismo.plot.plots.PlotWithViews
 import scalismo.plot.plots.CompletePlot
+import scalismo.plot.plots.Axis
+import scalismo.plot.vegalite.VegaChart
 
 /** The high-level API for creating plots. The data is represented as a
   * DataFrame and passed when constructing the class. The data for the
@@ -142,7 +143,10 @@ class ScalismoPlot(dataFrame: DataFrame) {
       values -> data(values)
     )
     Plot(fullData)
-      .encode(Channel.X("Iteration"), Channel.Y(values))
+      .encode(
+        Channel.X("Iteration"),
+        Channel.Y(values).scale(Scale.includeZero(false))
+      )
       .line()
       .chart(title = title)
 
@@ -168,7 +172,7 @@ class ScalismoPlot(dataFrame: DataFrame) {
       title: String,
       width: Int = defaultWidth,
       height: Int = defaultHeight
-  ): Chart =
+  ): VegaChart =
 
     val rows = for (keyR <- columnNames) yield
       val cols =

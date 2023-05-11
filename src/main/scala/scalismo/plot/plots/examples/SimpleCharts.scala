@@ -1,10 +1,10 @@
 package scalismo.plot.plots.examples
-import scalismo.plot.plots.DataTransforms
-import scalismo.plot.vegalite.Data.DataValue
+
 import scalismo.plot.plots.Plot
 import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
 import scalismo.plot.plots.{Channel}
 import scalismo.plot.plots.Scale
+import scalismo.plot.DataValue
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.

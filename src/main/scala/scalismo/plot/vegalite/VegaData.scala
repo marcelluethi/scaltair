@@ -21,10 +21,10 @@ import scalismo.plot.json.JsonString
 import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonNumber
-import scalismo.plot.vegalite.Data.DataValue
-import scalismo.plot.vegalite.Data.ColumnData
+import scalismo.plot.Data.ColumnData
+import scalismo.plot.DataValue
 
-final case class Data(data: ColumnData) extends VegaLite:
+final case class VegaData(data: ColumnData) extends VegaLite:
   require(
     data.values.forall(_.size == data.values.head.size),
     "All data fields must have the same size"
@@ -41,15 +41,3 @@ final case class Data(data: ColumnData) extends VegaLite:
           fieldId -> valueJson
         JsonObject(fieldsJson.toSeq)
     JsonObject(Seq("values" -> JsonArray(dataJson.toSeq)))
-
-object Data:
-
-  type ColumnName = String
-
-  /** A map from column names to the data values in the column.
-    */
-  type ColumnData = Map[ColumnName, Seq[DataValue]]
-
-  enum DataValue:
-    case Nominal(value: String)
-    case Quantitative(value: Double)

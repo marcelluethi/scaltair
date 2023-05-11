@@ -22,18 +22,18 @@ import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonNumber
 import scalismo.plot.json.JsonArray
 
-sealed trait View
+sealed trait VegaView
 
-case class SingleView(mark: Mark, encoding: Encoding) extends View:
+case class SingleView(mark: VegaMark, encoding: VegaEncoding) extends VegaView:
 
   def addLayer(view: SingleView): LayeredView =
     new LayeredView(Seq(this, view))
 
-sealed trait CompositeView extends View:
-  def views: Seq[View]
+sealed trait CompositeView extends VegaView:
+  def views: Seq[VegaView]
 
 case class LayeredView(val views: Seq[SingleView]) extends CompositeView
 
-case class HConcatViews(val views: Seq[View]) extends CompositeView
+case class HConcatViews(val views: Seq[VegaView]) extends CompositeView
 
-case class VConcatViews(val views: Seq[View]) extends CompositeView
+case class VConcatViews(val views: Seq[VegaView]) extends CompositeView

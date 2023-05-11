@@ -19,13 +19,13 @@ package scalismo.plot.vegalite
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
 import netscape.javascript.JSObject
-import Encoding.{Channel, ChannelProp}
+import VegaEncoding.{Channel, ChannelProp}
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonBool
 import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonNumber
 
-final case class Encoding(channels: Seq[Channel]) extends VegaLite:
+final case class VegaEncoding(channels: Seq[Channel]) extends VegaLite:
   override def spec: JsonObject =
     JsonObject(
       for (channel <- channels) yield
@@ -35,7 +35,7 @@ final case class Encoding(channels: Seq[Channel]) extends VegaLite:
         channel.name -> JsonObject(channelPropSpecs)
     )
 
-object Encoding:
+object VegaEncoding:
 
   enum Channel(val name: String, val props: Seq[ChannelProp]):
     case X(

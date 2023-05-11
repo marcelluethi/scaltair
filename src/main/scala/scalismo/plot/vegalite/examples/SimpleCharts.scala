@@ -1,11 +1,11 @@
 package scalismo.plot.vegalite.examples
 
-import scalismo.plot.vegalite.Data.DataValue
-import scalismo.plot.vegalite.{Chart, View, Encoding}
+import scalismo.plot.vegalite.{VegaChart, VegaView, VegaEncoding}
 import scalismo.plot.vegalite.SingleView
-import scalismo.plot.vegalite.Mark
+import scalismo.plot.vegalite.VegaMark
 import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
-import scalismo.plot.vegalite.Title
+import scalismo.plot.vegalite.VegaTitle
+import scalismo.plot.DataValue
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -18,15 +18,15 @@ object SimpleCharts {
       "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
     )
     val view = SingleView(
-      mark = Mark.Bar,
-      encoding = Encoding(channels =
+      mark = VegaMark.Bar,
+      encoding = VegaEncoding(channels =
         Seq(
-          Encoding.Channel.X("x", Encoding.FieldType.Nominal),
-          Encoding.Channel.Y("y", Encoding.FieldType.Quantitative)
+          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Nominal),
+          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative)
         )
       )
     )
-    val chart = Chart(data, view, Title("bar"))
+    val chart = VegaChart(data, view, VegaTitle("bar"))
     chart.show()
 
   def scatterPlot(): Unit =
@@ -35,15 +35,15 @@ object SimpleCharts {
       "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
     )
     val view = SingleView(
-      mark = Mark.Point,
-      encoding = Encoding(channels =
+      mark = VegaMark.Point,
+      encoding = VegaEncoding(channels =
         Seq(
-          Encoding.Channel.X("x", Encoding.FieldType.Quantitative),
-          Encoding.Channel.Y("y", Encoding.FieldType.Quantitative)
+          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
+          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative)
         )
       )
     )
-    val chart = Chart(data, view, Title("scatter"))
+    val chart = VegaChart(data, view, VegaTitle("scatter"))
     chart.show()
 
   def linePlot(): Unit =
@@ -54,15 +54,15 @@ object SimpleCharts {
       "y" -> ys.map(DataValue.Quantitative(_))
     )
     val view = SingleView(
-      mark = Mark.Line,
-      encoding = Encoding(channels =
+      mark = VegaMark.Line,
+      encoding = VegaEncoding(channels =
         Seq(
-          Encoding.Channel.X("x", Encoding.FieldType.Quantitative),
-          Encoding.Channel.Y("y", Encoding.FieldType.Quantitative)
+          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
+          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative)
         )
       )
     )
-    val chart = Chart(data, view, Title("line"))
+    val chart = VegaChart(data, view, VegaTitle("line"))
     chart.show()
 
   def lineSeriesPlot(): Unit =
@@ -80,16 +80,16 @@ object SimpleCharts {
       )(DataValue.Nominal("cos")))
     )
     val view = SingleView(
-      mark = Mark.Line,
-      encoding = Encoding(channels =
+      mark = VegaMark.Line,
+      encoding = VegaEncoding(channels =
         Seq(
-          Encoding.Channel.X("x", Encoding.FieldType.Quantitative),
-          Encoding.Channel.Y("y", Encoding.FieldType.Quantitative),
-          Encoding.Channel.Color("series")
+          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
+          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative),
+          VegaEncoding.Channel.Color("series")
         )
       )
     )
-    val chart = Chart(data, view, Title("line"))
+    val chart = VegaChart(data, view, VegaTitle("line"))
     chart.show()
 
   def histogram(): Unit =
@@ -99,27 +99,29 @@ object SimpleCharts {
       "x" -> xs.map(DataValue.Quantitative(_))
     )
 
-    val encoding = Encoding(
+    val encoding = VegaEncoding(
       Seq(
-        Encoding.Channel.X(
+        VegaEncoding.Channel.X(
           "x",
-          Encoding.FieldType.Quantitative,
-          Seq(Encoding.ChannelProp.Bin(true))
+          VegaEncoding.FieldType.Quantitative,
+          Seq(VegaEncoding.ChannelProp.Bin(true))
         ),
-        Encoding.Channel.Y(
+        VegaEncoding.Channel.Y(
           "x",
-          Encoding.FieldType.Quantitative,
-          Seq(Encoding.ChannelProp.Aggregate(Encoding.AggregateType.Count))
+          VegaEncoding.FieldType.Quantitative,
+          Seq(
+            VegaEncoding.ChannelProp.Aggregate(VegaEncoding.AggregateType.Count)
+          )
         )
       )
     )
 
     val view = SingleView(
-      mark = Mark.Bar,
+      mark = VegaMark.Bar,
       encoding = encoding
     )
 
-    val chart = Chart(data, view, Title("line"))
+    val chart = VegaChart(data, view, VegaTitle("line"))
     chart.show()
 
   def bubblePlot(): Unit =
@@ -134,32 +136,32 @@ object SimpleCharts {
         .map(DataValue.Quantitative(_))
     )
 
-    val encoding = Encoding(
+    val encoding = VegaEncoding(
       Seq(
-        Encoding.Channel.X(
+        VegaEncoding.Channel.X(
           "x",
-          Encoding.FieldType.Quantitative,
-          Seq(Encoding.ChannelProp.Bin(true))
+          VegaEncoding.FieldType.Quantitative,
+          Seq(VegaEncoding.ChannelProp.Bin(true))
         ),
-        Encoding.Channel.Y(
+        VegaEncoding.Channel.Y(
           "y",
-          Encoding.FieldType.Quantitative
+          VegaEncoding.FieldType.Quantitative
         ),
-        Encoding.Channel.Size(
+        VegaEncoding.Channel.Size(
           "size"
         ),
-        Encoding.Channel.Color(
+        VegaEncoding.Channel.Color(
           "size"
         )
       )
     )
 
     val view = SingleView(
-      mark = Mark.Circle,
+      mark = VegaMark.Circle,
       encoding = encoding
     )
 
-    val chart = Chart(data, view, Title("line"))
+    val chart = VegaChart(data, view, VegaTitle("line"))
     chart.show()
 
   @main def runSimpleCharts() =

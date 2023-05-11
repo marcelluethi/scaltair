@@ -16,9 +16,9 @@
  */
 package scalismo.plot.vegalite
 
-import scalismo.plot.vegalite.Mark
-import scalismo.plot.vegalite.Encoding
-import scalismo.plot.vegalite.Data
+import scalismo.plot.vegalite.VegaMark
+import scalismo.plot.vegalite.VegaEncoding
+import scalismo.plot.vegalite.VegaData
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
 import scalismo.plot.json.JsonNumber
@@ -27,19 +27,26 @@ import scalismo.plot.vegalite.VegaLite
 import scalismo.plot.json.JsonArray
 import scalismo.plot.plottarget.PlotTargetBrowser
 import scalismo.plot.plottarget.PlotTarget
-import scalismo.plot.vegalite.Data.DataValue
 import scalismo.plot.json.JsonValue
+import scalismo.plot.vegalite.{
+  HConcatViews,
+  VConcatViews,
+  CompositeView,
+  SingleView,
+  LayeredView
+}
+import scalismo.plot.DataValue
 
-case class Chart(
+case class VegaChart(
     data: Map[String, Seq[DataValue]],
-    val view: View,
-    title: Title = Title(""),
+    val view: VegaView,
+    title: VegaTitle = VegaTitle(""),
     width: Int = 600,
     height: Int = 600
 ) extends VegaLite:
 
   override def spec: JsonObject =
-    val dataspec = Data(data).spec
+    val dataspec = VegaData(data).spec
 
     // we divide the spec into base spec and view.
     // Each is just a seq of key-value pairs, which we

@@ -20,18 +20,18 @@ import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
 import scalismo.plot.json.JsonValue
 
-enum Mark(val markSpec: JsonValue) extends VegaLite:
+enum VegaMark(val markSpec: JsonValue) extends VegaLite:
   override def spec: JsonValue = markSpec
 
-  case Line extends Mark(JsonString("line"))
-  case Bar extends Mark(JsonString("bar"))
-  case Area extends Mark(JsonString("area"))
-  case Boxplot extends Mark(JsonString("boxplot"))
-  case Circle extends Mark(JsonString("circle"))
-  case ErrorBand extends Mark(JsonString("errorband"))
-  case ErrorBar extends Mark(JsonString("errorbar"))
-  case Point extends Mark(JsonString("point"))
-  case Rect extends Mark(JsonString("rect"))
-  case Square extends Mark(JsonString("square"))
-  case Text extends Mark(JsonString("text"))
-  case Custom(customSpec: JsonValue) extends Mark(customSpec)
+  case Line extends VegaMark(JsonString("line"))
+  case Bar extends VegaMark(JsonString("bar"))
+  case Area extends VegaMark(JsonString("area"))
+  case Boxplot extends VegaMark(JsonString("boxplot"))
+  case Circle extends VegaMark(JsonString("circle"))
+  case ErrorBand extends VegaMark(JsonString("errorband"))
+  case ErrorBar extends VegaMark(JsonString("errorbar"))
+  case Point extends VegaMark(JsonString("point"))
+  case Rect extends VegaMark(JsonString("rect"))
+  case Square extends VegaMark(JsonString("square"))
+  case Text extends VegaMark(JsonString("text"))
+  case Custom(customSpec: JsonValue) extends VegaMark(customSpec)

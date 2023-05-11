@@ -6,7 +6,7 @@ import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonNumber
 
-case class Title(text: String, props: Seq[TitleProp] = Seq.empty)
+case class VegaTitle(text: String, props: Seq[TitleProp] = Seq.empty)
     extends VegaLite:
   override def spec: JsonObject =
     JsonObject(
