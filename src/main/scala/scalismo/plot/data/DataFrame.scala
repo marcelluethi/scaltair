@@ -289,21 +289,21 @@ object DataFrame:
         throw new Exception(s"cannot convert $value to continuous value")
 
     def asContinuousOpt: Option[CellValue.Continuous] = this match
-      case c@CellValue.Continuous(d) => Some(c)
-      case CellValue.Discrete(d)   => Some(CellValue.Continuous(d.toDouble))
-      case _                       => None
+      case c @ CellValue.Continuous(d) => Some(c)
+      case CellValue.Discrete(d)       => Some(CellValue.Continuous(d.toDouble))
+      case _                           => None
 
     def asDiscreteOpt: Option[CellValue.Discrete] = this match
-      case d@CellValue.Discrete(i) => Some(d)
-      case _                     => None
+      case d @ CellValue.Discrete(i) => Some(d)
+      case _                         => None
 
     def asDiscrete: CellValue.Discrete = asDiscreteOpt match
       case Some(d) => d
       case _ => throw new Exception(s"cannot convert $value to discrete value")
 
     def asNominalOpt: Option[CellValue.Nominal] = this match
-      case n@CellValue.Nominal(s) => Some(n)
-      case _                    => None
+      case n @ CellValue.Nominal(s) => Some(n)
+      case _                        => None
 
     def asNominal: CellValue.Nominal = asNominalOpt match
       case Some(n) => n

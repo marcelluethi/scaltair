@@ -20,7 +20,7 @@ import java.awt.Desktop
 import java.nio.file.Paths
 import java.nio.file.Files
 import java.net.URI
-import scalismo.plot.vegalite.Chart
+import scalismo.plot.vegalite.VegaChart
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.Json
 import scala.util.Success
@@ -31,7 +31,7 @@ import almond.interpreter.api.DisplayData
 import almond.api.JupyterAPIHolder.value
 
 trait PlotTarget:
-  def show(chart: Chart): Unit
+  def show(chart: VegaChart): Unit
 
 object PlotTargets:
 
@@ -39,7 +39,7 @@ object PlotTargets:
   given plotTargetJupyter: PlotTarget = PlotTargetJupyter
 
 object PlotTargetJupyter extends PlotTarget:
-  def show(chart: Chart): Unit =
+  def show(chart: VegaChart): Unit =
 
     // This code was taken from  https://github.com/Quafadas/dedav4s/tree/main/core/jvm/src/main/scala/viz
     val kernel = summon[JupyterApi]
@@ -53,7 +53,7 @@ object PlotTargetJupyter extends PlotTarget:
 
 object PlotTargetBrowser extends PlotTarget:
 
-  def show(chart: Chart): Unit =
+  def show(chart: VegaChart): Unit =
     val spec = chart.spec
     if (
       Desktop.isDesktopSupported() && Desktop

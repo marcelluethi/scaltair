@@ -18,20 +18,26 @@ package scalismo.plot.vegalite
 
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
+import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonValue
+import scalismo.plot.json.JsonNumber
+import scalismo.plot.Data.ColumnData
+import scalismo.plot.DataValue
 
-enum Mark(val markSpec: JsonValue) extends VegaLite:
-  override def spec: JsonValue = markSpec
-
-  case Line extends Mark(JsonString("line"))
-  case Bar extends Mark(JsonString("bar"))
-  case Area extends Mark(JsonString("area"))
-  case Boxplot extends Mark(JsonString("boxplot"))
-  case Circle extends Mark(JsonString("circle"))
-  case ErrorBand extends Mark(JsonString("errorband"))
-  case ErrorBar extends Mark(JsonString("errorbar"))
-  case Point extends Mark(JsonString("point"))
-  case Rect extends Mark(JsonString("rect"))
-  case Square extends Mark(JsonString("square"))
-  case Text extends Mark(JsonString("text"))
-  case Custom(customSpec: JsonValue) extends Mark(customSpec)
+final case class VegaData(data: ColumnData) extends VegaLite:
+  require(
+    data.values.forall(_.size == data.values.head.size),
+    "All data fields must have the same size"
+  )
+  val numRows = data.head._2.size
+  override def spec: JsonObject =
+    val dataJson =
+      for row <- 0 until numRows yield
+        val fieldsJson = for fieldId <- data.keys yield
+          val value = data(fieldId)(row)
+          val valueJson = value match
+            case DataValue.Nominal(value)      => JsonString(value)
+            case DataValue.Quantitative(value) => JsonNumber(value)
+          fieldId -> valueJson
+        JsonObject(fieldsJson.toSeq)
+    JsonObject(Seq("values" -> JsonArray(dataJson.toSeq)))

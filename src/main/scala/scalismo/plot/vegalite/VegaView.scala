@@ -18,18 +18,22 @@ package scalismo.plot.vegalite
 
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
-import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonNumber
-import scalismo.plot.data.*
-import scalismo.plot.data.DataFrame.*
+import scalismo.plot.json.JsonArray
 
-final case class Data(data: DataFrame) extends VegaLite:
-  override def spec: JsonObject =
-    val dataJson =
-      for row <- data.rows yield
-        val fieldsJson = for field <- row.toSeq yield
-          val DataCell(fieldId, fieldValue) = field
-          fieldId -> JsonString(fieldValue.toString)
-        JsonObject(fieldsJson)
-    JsonObject(Seq("values" -> JsonArray(dataJson)))
+sealed trait VegaView
+
+case class SingleView(mark: VegaMark, encoding: VegaEncoding) extends VegaView:
+
+  def addLayer(view: SingleView): LayeredView =
+    new LayeredView(Seq(this, view))
+
+sealed trait CompositeView extends VegaView:
+  def views: Seq[VegaView]
+
+case class LayeredView(val views: Seq[SingleView]) extends CompositeView
+
+case class HConcatViews(val views: Seq[VegaView]) extends CompositeView
+
+case class VConcatViews(val views: Seq[VegaView]) extends CompositeView

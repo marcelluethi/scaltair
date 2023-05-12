@@ -19,13 +19,13 @@ package scalismo.plot.vegalite
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
 import netscape.javascript.JSObject
-import Encoding.{Channel, ChannelProp}
+import VegaEncoding.{Channel, ChannelProp}
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonBool
 import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonNumber
 
-final case class Encoding(channels: Seq[Channel]) extends VegaLite:
+final case class VegaEncoding(channels: Seq[Channel]) extends VegaLite:
   override def spec: JsonObject =
     JsonObject(
       for (channel <- channels) yield
@@ -35,7 +35,7 @@ final case class Encoding(channels: Seq[Channel]) extends VegaLite:
         channel.name -> JsonObject(channelPropSpecs)
     )
 
-object Encoding:
+object VegaEncoding:
 
   enum Channel(val name: String, val props: Seq[ChannelProp]):
     case X(
@@ -66,8 +66,19 @@ object Encoding:
         otherProps: Seq[ChannelProp] = Seq.empty
     ) extends Channel("y2", Seq(ChannelProp.Field(fieldName)))
 
-    case Color(fieldName: String)
-        extends Channel("color", Seq(ChannelProp.Field(fieldName)))
+    case Color(fieldName: String, otherProps: Seq[ChannelProp] = Seq.empty)
+        extends Channel(
+          "color",
+          Seq(ChannelProp.Field(fieldName)) ++ otherProps
+        )
+    case Size(fieldName: String, otherProps: Seq[ChannelProp] = Seq.empty)
+        extends Channel(
+          "size",
+          Seq(
+            ChannelProp.Field(fieldName),
+            ChannelProp.Type(FieldType.Quantitative)
+          ) ++ otherProps
+        )
 
   enum ChannelProp(val name: String, val spec: JsonValue):
     case Field(fieldName: String)
@@ -80,11 +91,22 @@ object Encoding:
         extends ChannelProp(propName, customSpec)
     case Scale(scaleSpec: ScaleSpec)
         extends ChannelProp("scale", scaleSpec.spec)
+    case Axis(axisProps: Seq[AxisProp])
+        extends ChannelProp(
+          "axis",
+          JsonObject(axisProps.map(prop => prop.name -> prop.spec))
+        )
 
   enum ScaleSpec(val spec: JsonValue) extends VegaLite:
     case IncludeZero(zero: Boolean)
         extends ScaleSpec(JsonObject(Seq("zero" -> JsonBool(zero))))
     case FromDomain(domain: Domain) extends ScaleSpec(domain.spec)
+
+  enum AxisProp(val name: String, val spec: JsonValue) extends VegaLite:
+    case LabelFontSize(fontSize: Int)
+        extends AxisProp("labelFontSize", JsonNumber(fontSize))
+    case TitleFontSize(fontSize: Int)
+        extends AxisProp("titleFontSize", JsonNumber(fontSize))
 
   enum FieldType(val spec: JsonValue) extends VegaLite:
 

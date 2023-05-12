@@ -19,21 +19,19 @@ package scalismo.plot.vegalite
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
 import scalismo.plot.json.JsonValue
-import scalismo.plot.json.JsonNumber
-import scalismo.plot.json.JsonArray
 
-sealed trait View
+enum VegaMark(val markSpec: JsonValue) extends VegaLite:
+  override def spec: JsonValue = markSpec
 
-case class SingleView(mark: Mark, encoding: Encoding) extends View:
-
-  def addLayer(view: SingleView): LayeredView =
-    new LayeredView(Seq(this, view))
-
-sealed trait CompositeView extends View:
-  def views: Seq[View]
-
-case class LayeredView(val views: Seq[SingleView]) extends CompositeView
-
-case class HConcatViews(val views: Seq[View]) extends CompositeView
-
-case class VConcatViews(val views: Seq[View]) extends CompositeView
+  case Line extends VegaMark(JsonString("line"))
+  case Bar extends VegaMark(JsonString("bar"))
+  case Area extends VegaMark(JsonString("area"))
+  case Boxplot extends VegaMark(JsonString("boxplot"))
+  case Circle extends VegaMark(JsonString("circle"))
+  case ErrorBand extends VegaMark(JsonString("errorband"))
+  case ErrorBar extends VegaMark(JsonString("errorbar"))
+  case Point extends VegaMark(JsonString("point"))
+  case Rect extends VegaMark(JsonString("rect"))
+  case Square extends VegaMark(JsonString("square"))
+  case Text extends VegaMark(JsonString("text"))
+  case Custom(customSpec: JsonValue) extends VegaMark(customSpec)

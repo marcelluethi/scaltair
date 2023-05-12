@@ -16,10 +16,9 @@
  */
 package scalismo.plot.vegalite
 
-import scalismo.plot.vegalite.Mark
-import scalismo.plot.data.DataFrame
-import scalismo.plot.vegalite.Encoding
-import scalismo.plot.vegalite.Data
+import scalismo.plot.vegalite.VegaMark
+import scalismo.plot.vegalite.VegaEncoding
+import scalismo.plot.vegalite.VegaData
 import scalismo.plot.json.JsonObject
 import scalismo.plot.json.JsonString
 import scalismo.plot.json.JsonNumber
@@ -28,19 +27,26 @@ import scalismo.plot.vegalite.VegaLite
 import scalismo.plot.json.JsonArray
 import scalismo.plot.plottarget.PlotTargetBrowser
 import scalismo.plot.plottarget.PlotTarget
+import scalismo.plot.json.JsonValue
+import scalismo.plot.vegalite.{
+  HConcatViews,
+  VConcatViews,
+  CompositeView,
+  SingleView,
+  LayeredView
+}
+import scalismo.plot.DataValue
 
-case class Chart(
-    dataFrame: DataFrame,
-    val view: View,
-    title: String = "",
+case class VegaChart(
+    data: Map[String, Seq[DataValue]],
+    val view: VegaView,
+    title: VegaTitle = VegaTitle(""),
     width: Int = 600,
     height: Int = 600
 ) extends VegaLite:
 
-  def data = Data(dataFrame)
-
   override def spec: JsonObject =
-    val dataspec = data.spec
+    val dataspec = VegaData(data).spec
 
     // we divide the spec into base spec and view.
     // Each is just a seq of key-value pairs, which we
@@ -55,7 +61,7 @@ case class Chart(
       "description" -> JsonString("."),
       "width" -> JsonNumber(width),
       "height" -> JsonNumber(height),
-      "title" -> JsonString(title),
+      "title" -> title.spec,
       "data" -> dataspec
     )
 
@@ -90,7 +96,7 @@ case class Chart(
       case concatView: HConcatViews =>
         JsonObject(Seq("hconcat" -> collectSpecForCompositeView(concatView)))
       case concatView: VConcatViews =>
-        JsonObject(Seq("hconcat" -> collectSpecForCompositeView(concatView)))
+        JsonObject(Seq("vconcat" -> collectSpecForCompositeView(concatView)))
     JsonArray(viewSpecs)
 
   def show()(using plotTarget: PlotTarget): Unit =
@@ -98,32 +104,3 @@ case class Chart(
     Thread.sleep(
       1000
     ) // TODO replace me with a proper wait for the browser to open
-
-// object Chart:
-
-//   def main(args: Array[String]): Unit =
-//     val data =
-//       DataFrame.fromColumns(Map("x" -> Seq(1, 2, 3), "y" -> Seq(3, 4, 5)))
-
-//     import Encoding.*
-
-//     val encoding = Encoding(
-//       Map(
-//         Channel.X ->
-//           Field("x", FieldType.Quantitative, bin = false, aggregate = None),
-//         Channel.Y ->
-//           Field("x", FieldType.Quantitative, bin = false, aggregate = None))
-//     )
-
-//     val view1 = SingleView()
-//       .withMark(Mark(Mark.MarkType.Line))
-//       .encode(encoding)
-//     val view2 = SingleView()
-//       .withMark(Mark(Mark.MarkType.Bar))
-//       .encode(encoding)
-
-//     val compositeView =  VConcatViews(
-//           Seq(view1, view2, LayeredView(Seq(view1, view2)))
-//         )
-
-//     Chart(data, compositeView).show()
