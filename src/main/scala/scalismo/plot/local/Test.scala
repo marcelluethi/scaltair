@@ -3,6 +3,9 @@ package scalismo.plot.local
 import scalismo.plot.data.DataFrame
 import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
 import scalismo.plot.data.DataFrame.CellValue
+import scalismo.plot.Chart
+import scalismo.plot.DataValue
+import scalismo.plot.Channel
 
 object Test:
 
@@ -26,12 +29,15 @@ object Test:
         DataFrame.Column.ofContinuous(xValues.map(x => x * x + 5), "upper")
       )
     )
-    dfWithError.plot
-      .linePlotWithErrorBand(
-        x = "x",
-        y = "x squared",
-        lowerBand = "lower",
-        upperBand = "upper",
-        title = " A line plot with error bars"
-      )
-      .show()
+
+    val data = Map(
+      "x" -> Seq("A", "B", "C", "D", "E").map(DataValue.Nominal(_)),
+      "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
+    )
+
+    val spec = Chart(data)
+    .encode(Channel.X("x"), Channel.Y("y"))
+    .markCircle()
+    .vegaSpec
+
+  

@@ -1,10 +1,11 @@
 package scalismo.plot.plots.examples
 
-import scalismo.plot.plots.Plot
+import scalismo.plot.Chart
 import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
-import scalismo.plot.plots.{Channel}
-import scalismo.plot.plots.Scale
+import scalismo.plot.Channel
+import scalismo.plot.Scale
 import scalismo.plot.DataValue
+import scalismo.plot.ChartProperties
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -16,10 +17,9 @@ object SimpleCharts:
       "x" -> Seq("A", "B", "C", "D", "E").map(DataValue.Nominal(_)),
       "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
     )
-    Plot(data)
+    Chart(data)
       .encode(Channel.X("x"), Channel.Y("y"))
-      .bar()
-      .chart(title = "Bar Chart")
+      .markBar()    
       .show()
 
   def scatterPlot(): Unit =
@@ -28,10 +28,9 @@ object SimpleCharts:
       "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
     )
 
-    Plot(data)
+    Chart(data)
       .encode(Channel.X("x"), Channel.Y("y"))
-      .point()
-      .chart(title = "Scatterplot", width = 1500, height = 1500)
+      .markPoint()
       .show()
 
   def linePlot(): Unit =
@@ -42,10 +41,10 @@ object SimpleCharts:
       "y" -> ys.map(DataValue.Quantitative(_))
     )
 
-    Plot(data)
+    Chart(data)
       .encode(Channel.X("x"), Channel.Y("y"))
-      .line()
-      .chart(title = "line")
+      .markLine()
+      .properties(ChartProperties(title = "line", titleFontSize = 20))
       .show()
 
   def lineSeries(): Unit =
@@ -62,10 +61,9 @@ object SimpleCharts:
         ++
           Seq.fill(xs.length)(DataValue.Nominal("cos")))
     )
-    Plot(data)
+    Chart(data)
       .encode(Channel.X("x"), Channel.Y("y"), Channel.Color("series"))
-      .line()
-      .chart(title = "line series")
+      .markLine()
       .show()
 
   def histogram(): Unit =
@@ -75,10 +73,9 @@ object SimpleCharts:
       "x" -> xs.map(DataValue.Quantitative(_))
     )
 
-    Plot(data)
+    Chart(data)
       .encode(Channel.X("x").binned(), Channel.Y("x").count())
-      .bar()
-      .chart(title = "histogram")
+      .markBar()
       .show()
 
   def bubblePlot(): Unit =
@@ -93,21 +90,20 @@ object SimpleCharts:
         .map(DataValue.Quantitative(_))
     )
 
-    Plot(data)
+    Chart(data)
       .encode(
         Channel.X("x").binned(),
         Channel.Y("y"),
         Channel.Size("size"),
         Channel.Color("color")
       )
-      .circle()
-      .chart(title = "bubble plot")
+      .markCircle()
       .show()
 
   @main def runSimpleCharts() =
-    // barChart()
+    barChart()
     scatterPlot()
-    // linePlot()
-    // lineSeries()
-    // histogram()
-    // bubblePlot()
+    linePlot()
+    lineSeries()
+    histogram()
+    bubblePlot()

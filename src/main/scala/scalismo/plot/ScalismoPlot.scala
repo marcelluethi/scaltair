@@ -16,15 +16,15 @@
  */
 package scalismo.plot
 
-import scalismo.plot.plots.Plot
+import scalismo.plot.Chart
 import scalismo.plot.data.DataFrame
 import scalismo.plot.data.DataFrame.*
 
-import scalismo.plot.plots.Channel
-import scalismo.plot.plots.Scale
-import scalismo.plot.plots.PlotWithViews
-import scalismo.plot.plots.CompletePlot
-import scalismo.plot.plots.Axis
+import scalismo.plot.Channel
+import scalismo.plot.Scale
+import scalismo.plot.ChartWithViews
+import scalismo.plot.CompleteChart
+import scalismo.plot.Axis
 import scalismo.plot.vegalite.VegaChart
 
 /** The high-level API for creating plots. The data is represented as a
@@ -58,15 +58,15 @@ class ScalismoPlot(dataFrame: DataFrame) {
       height: Int = defaultHeight
   ) =
     if series.isEmpty then
-      Plot(data)
+      Chart(data)
         .encode(Channel.X(x), Channel.Y(y))
-        .line()
-        .chart(title = title, width = width, height = height)
+        .markLine()
+        .properties(ChartProperties(title = title, width = width, height = height))
     else
-      Plot(data)
+      Chart(data)
         .encode(Channel.X(x), Channel.Y(y), Channel.Color(series))
-        .line()
-        .chart(title = title, width = width, height = height)
+        .markLine()
+        .properties(ChartProperties(title = title, width = width, height = height))
 
   /** Create a line plot with an error band.
     */
@@ -79,15 +79,15 @@ class ScalismoPlot(dataFrame: DataFrame) {
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) =
-    val lineView = Plot(data)
+    val lineView = Chart(data)
       .encode(Channel.X(x), Channel.Y(y))
-      .line()
+      .markLine()
 
-    val errorView = Plot(data)
+    val errorView = Chart(data)
       .encode(Channel.X(x), Channel.Y(lowerBand), Channel.Y2(upperBand))
-      .errorBand()
+      .markErrorBand()
 
-    lineView.overlay(errorView).chart(title, width, height)
+    lineView.overlay(errorView).properties(ChartProperties(title = title, width = width, height = height))
 
   /** Create a scatter plot.
     */
@@ -100,15 +100,15 @@ class ScalismoPlot(dataFrame: DataFrame) {
       height: Int = defaultHeight
   ) =
     if colorField.isEmpty() then
-      Plot(data)
+      Chart(data)
         .encode(Channel.X(x), Channel.Y(y))
-        .circle()
-        .chart(title = title)
+        .markCircle()
+        .properties(ChartProperties(title = title))
     else
-      Plot(data)
+      Chart(data)
         .encode(Channel.X(x), Channel.Y(y), Channel.Color(colorField))
-        .circle()
-        .chart(title = title)
+        .markCircle()
+        .properties(ChartProperties(title = title))
 
   /** Creates a boxplot
     */
@@ -119,10 +119,10 @@ class ScalismoPlot(dataFrame: DataFrame) {
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) =
-    Plot(data)
+    Chart(data)
       .encode(Channel.X(series), Channel.Y(values))
-      .boxplot()
-      .chart(title = title)
+      .markBoxplot()
+      .properties(ChartProperties(title = title))
 
   /** Creates a trace plot from the given values. A trace plot is simply a line
     * plot, where the x-axis is the index of the values in the given array.
@@ -142,13 +142,13 @@ class ScalismoPlot(dataFrame: DataFrame) {
       "Iteration" -> iterations,
       values -> data(values)
     )
-    Plot(fullData)
+    Chart(fullData)
       .encode(
         Channel.X("Iteration"),
-        Channel.Y(values).scale(Scale.includeZero(false))
+        Channel.Y(values).scale(Scale(axisIncludesZero = false))
       )
-      .line()
-      .chart(title = title)
+      .markLine()
+      .properties(ChartProperties(title = title))
 
   }
 
@@ -160,10 +160,10 @@ class ScalismoPlot(dataFrame: DataFrame) {
       width: Int = defaultWidth,
       height: Int = defaultHeight
   ) =
-    Plot(data)
+    Chart(data)
       .encode(Channel.X(x).binned(), Channel.Y(x).count())
-      .bar()
-      .chart(title = title)
+      .markBar()
+      .properties(ChartProperties(title = title))
 
   /** Creates a pair plot from the given columns.
     */
@@ -179,14 +179,14 @@ class ScalismoPlot(dataFrame: DataFrame) {
         for (keyV <- columnNames)
           yield
             if keyR == keyV then
-              Plot(data)
+              Chart(data)
                 .encode(Channel.X(keyR).binned(), Channel.Y(keyV).count())
-                .bar()
-            else Plot(data).encode(Channel.X(keyR), Channel.Y(keyV)).circle()
-      cols.reduce[CompletePlot]((a, b) => a.hConcat(b))
+                .markBar()
+            else Chart(data).encode(Channel.X(keyR), Channel.Y(keyV)).markCircle()
+      cols.reduce[CompleteChart]((a, b) => a.hConcat(b))
 
-    rows
+    val chart = rows
       .reduce((a, b) => a.vConcat(b))
-      .chart(title = title, width = width, height = height)
-
+      
+    chart.vegaSpec
 }

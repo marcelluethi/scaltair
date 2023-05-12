@@ -16,12 +16,13 @@ import scalismo.plot.vegalite.HConcatViews
 import scalismo.plot.vegalite.CompositeView
 import scalismo.plot.vegalite.VConcatViews
 import scalismo.plot.DataValue
+import scalismo.plot.plottarget.PlotTarget
 
-case class Plot(
+case class Chart(
     data: Map[String, Seq[DataValue]]
 ):
 
-  def encode(channels: Channel*): PlotWithEncoding =
+  def encode(channels: Channel*): ChartWithEncoding =
 
     val vegaChannels = for channel <- channels yield channel match
       case Channel.X(fieldName, binned, scale, axis) =>
@@ -105,70 +106,76 @@ case class Plot(
         VegaEncoding.Channel.Color(fieldName, Seq.empty)
       case Channel.Size(fieldName) =>
         VegaEncoding.Channel.Size(fieldName, Seq.empty)
-    PlotWithEncoding(data, encoding = VegaEncoding(vegaChannels))
+    ChartWithEncoding(data, encoding = VegaEncoding(vegaChannels))
 
-case class PlotWithEncoding(
+case class ChartWithEncoding(
     data: Map[String, Seq[DataValue]],
     encoding: VegaEncoding = VegaEncoding(Seq.empty)
 ):
 
-  def line(): PlotWithViews =
-    PlotWithViews(data, LayeredView(Seq(SingleView(VegaMark.Line, encoding))))
-  def circle(): PlotWithViews =
-    PlotWithViews(data, LayeredView(Seq(SingleView(VegaMark.Circle, encoding))))
-  def point(): PlotWithViews =
-    PlotWithViews(data, LayeredView(Seq(SingleView(VegaMark.Point, encoding))))
-  def bar(): PlotWithViews =
-    PlotWithViews(data, LayeredView(Seq(SingleView(VegaMark.Bar, encoding))))
-  def area(): PlotWithViews =
-    PlotWithViews(data, LayeredView(Seq(SingleView(VegaMark.Area, encoding))))
-  def boxplot(): PlotWithViews =
-    PlotWithViews(
+  def markLine(): ChartWithViews =
+    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Line, encoding))))
+  def markCircle(): ChartWithViews =
+    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Circle, encoding))))
+  def markPoint(): ChartWithViews =
+    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Point, encoding))))
+  def markBar(): ChartWithViews =
+    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Bar, encoding))))
+  def markArea(): ChartWithViews =
+    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Area, encoding))))
+  def markBoxplot(): ChartWithViews =
+    ChartWithViews(
       data,
       LayeredView(Seq(SingleView(VegaMark.Boxplot, encoding)))
     )
-  def errorBand(): PlotWithViews =
-    PlotWithViews(
+  def markErrorBand(): ChartWithViews =
+    ChartWithViews(
       data,
       LayeredView(Seq(SingleView(VegaMark.ErrorBand, encoding)))
     )
 
-trait CompletePlot:
+trait CompleteChart:
   def data: Map[String, Seq[DataValue]]
   def view: VegaView
-  def chart(
-      title: String = "",
-      titleFontSize: Int = 20,
-      width: Int = 600,
-      height: Int = 600
-  ): VegaChart =
-    VegaChart(
+
+  def properties(properties : ChartProperties) : CompleteChartWithProperties =
+    CompleteChartWithProperties(
       data,
       view,
-      VegaTitle(title, Seq(TitleProp.FontSize(titleFontSize))),
-      width,
-      height
+      properties
     )
 
-  def hConcat(other: CompletePlot): PlotWithCompositeView =
-    PlotWithCompositeView(data, HConcatViews(Seq(this.view, other.view)))
+  def vegaSpec : VegaChart = VegaChart(data, view)
+  def show()(using plotTarget : PlotTarget) : Unit =  vegaSpec.show()
 
-  def vConcat(other: CompletePlot): PlotWithCompositeView =
-    PlotWithCompositeView(data, VConcatViews(Seq(this.view, other.view)))
+  def hConcat(other: CompleteChart): ChartWithCompositeView =
+    ChartWithCompositeView(data, HConcatViews(Seq(this.view, other.view)))
 
-case class PlotWithViews(
+  def vConcat(other: CompleteChart): ChartWithCompositeView =
+    ChartWithCompositeView(data, VConcatViews(Seq(this.view, other.view)))
+
+case class CompleteChartWithProperties(
+    data: Map[String, Seq[DataValue]],
+    view: VegaView,
+    properties: ChartProperties
+) extends CompleteChart:
+
+  override def vegaSpec : VegaChart = VegaChart(data, view, VegaTitle(properties.title, Seq(TitleProp.FontSize(properties.titleFontSize))), properties.width, properties.height)
+
+
+case class ChartWithViews(
     data: Map[String, Seq[DataValue]],
     view: LayeredView
-) extends CompletePlot:
+) extends CompleteChart:
 
-  def overlay(other: PlotWithViews): PlotWithViews =
+  def overlay(other: ChartWithViews): ChartWithViews =
     require(other.data == data, "Data must be the same")
-    PlotWithViews(data, LayeredView(this.view.views ++ other.view.views))
+    ChartWithViews(data, LayeredView(this.view.views ++ other.view.views))
 
-case class PlotWithCompositeView(
+case class ChartWithCompositeView(
     data: Map[String, Seq[DataValue]],
     view: CompositeView
-) extends CompletePlot
+) extends CompleteChart
 
 sealed trait Channel(
     fieldName: String
@@ -226,15 +233,12 @@ object Channel:
   case class Color(fieldName: String) extends Channel(fieldName)
   case class Size(fieldName: String) extends Channel(fieldName)
 
-case class Scale(axisIncludesZero: Boolean = false):
-  def includeZero(): Scale = copy(axisIncludesZero = true)
+case class Scale(axisIncludesZero: Boolean = false)
 
-case class Axis(labelFontSize: Int = 14, titleFontSize: Int = 14):
-  def labelFontSize(size: Int): Axis = copy(labelFontSize = size)
-  def titleFontSize(size: Int): Axis = copy(titleFontSize = size)
+case class Axis(labelFontSize: Int = 14, titleFontSize: Int = 14)
 
-object Scale:
-  def includeZero(b: Boolean): Scale = Scale(false)
+
+case class ChartProperties(title : String = "", titleFontSize : Int = 20, width : Int = 600, height : Int = 600)
 
 @main def plotSpec(): Unit =
   val xs = Seq.range(0, 200).map(_ / 10.0)
@@ -243,12 +247,4 @@ object Scale:
     "x" -> xs.map(DataValue.Quantitative(_)),
     "y" -> ys.map(DataValue.Quantitative(_))
   )
-  Plot(data)
-    .encode(
-      Channel.X("x").axis(Axis(labelFontSize = 10, titleFontSize = 10)),
-      Channel.Y("y"),
-      Channel.Y2("y")
-    )
-    .circle()
-    .chart(width = 600, height = 600, title = "abc", titleFontSize = 60)
-    .show()
+
