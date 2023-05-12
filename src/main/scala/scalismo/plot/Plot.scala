@@ -1,4 +1,4 @@
-package scalismo.plot.plots
+package scalismo.plot
 
 import scalismo.plot.vegalite.TitleProp
 import scalismo.plot.vegalite.VegaMark
