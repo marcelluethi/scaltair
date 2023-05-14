@@ -8,20 +8,18 @@ Plots can be rendered in the browser or from within a jupyter-notebook.
 
 See the [quickstart Guide](docs/quickstart.md). 
 
-You can also have a look at the 
 
 ### Status of the project
 
-The project is in an early stage and the interface might still change. 
+The project is in an early stage and the api might still be subject to changes. 
 It supports a subset of the functionality provided by 
-vega-lite and altair. In particular, it currently cannot create
-interactive plots or working with temporal data. 
+vega-lite and altair. While it can already produce most plots used in a typical scientific context or 
+data analysis task, it cannot create interactive plots nor does it support temporal data. 
 
-It should be easy to add the missing functionality if this is required. The project is designed in such a way, that it is easy to understand and does not make use of any fancy language 
-features or libraries. Pull requests are very welcome.
+It should be easy to add the missing functionality if this is required. The project is designed in such a way, that it is easy to understand and straight-forward to extend. It does not make use of any fancy language features or libraries. Pull requests are very welcome.
 
 ##### Adding new features
 Adding new features consists of two simple steps:
 
-1. Add a Case class in the package scaltair.plot.vegalite representing the corresponding Vega construct.
-2. Expose the functionality in the corresponding dsl. 
+1. Add a case class in the package `scaltair.vegalite` representing the corresponding Vega construct and define how it is mapped to json. 
+2. Expose the functionality in the high-level dsl defined in `scaltair.Chart`. 

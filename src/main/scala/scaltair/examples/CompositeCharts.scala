@@ -27,56 +27,52 @@ import scaltair.FieldType
 object CompositeCharts:
 
   val data = Map(
-    "x" -> Seq("A", "B", "C", "D", "E"),
-    "y" -> Seq(5, 3, 6, 7, 2),
-    "y2" -> Seq(6, 4, 7, 8, 3)
+    "shoe-size" -> Seq(38, 42, 43, 44, 47),
+    "stature" -> Seq(150, 170, 172, 180, 195),
+    "weight" -> Seq(55, 75, 70, 75, 100),
+    "sex" -> Seq("f", "f", "m", "m", "m")
   )
 
-  val view1 = Chart(data)
-    .encode(
-      Channel.X("x", FieldType.Nominal),
-      Channel.Y("y", FieldType.Quantitative)
-    )
-    .markLine()
-
-  val view2 = Chart(data)
-    .encode(
-      Channel.X("x", FieldType.Nominal),
-      Channel.Y("y", FieldType.Quantitative),
-      Channel.Size("y")
-    )
-    .markPoint()
-
   def layeredChart(): Unit =
-    view1
-      .overlay(view2)
-      .show()
+
+    val view1 = Chart(data)
+      .encode(
+        Channel.X("shoe-size", FieldType.Ordinal),
+        Channel.Y("stature", FieldType.Quantitative)
+      )
+      .markLine()
+
+    val view2 = Chart(data)
+      .encode(
+        Channel.X("shoe-size", FieldType.Ordinal),
+        Channel.Y("stature", FieldType.Quantitative),
+        Channel.Color("sex")
+      )
+      .markBar()
+
+    view1.overlay(view2).show()
 
   def stackedChart(): Unit =
 
-    val verticalCharts = (view1
-      .vConcat(view2))
-      .hConcat(view1.vConcat(view2))
-      .properties(ChartProperties(title = "Vertical charts"))
+    val view1 = Chart(data)
+      .encode(
+        Channel.X("shoe-size", FieldType.Ordinal),
+        Channel.Y("stature", FieldType.Quantitative)
+      )
+      .markLine()
+
+    val view2 = Chart(data)
+      .encode(
+        Channel.X("shoe-size", FieldType.Ordinal),
+        Channel.Y("weight", FieldType.Quantitative),
+      )
+      .markLine()
+
+      view1.hConcat(view2)
+      .properties(ChartProperties(title = "stacked charts"))
       .show()
 
-  def chartWithTwoAxis(): Unit =
-    val base = Chart(data)
-      .encode(
-        Channel.X("x", FieldType.Nominal),
-        Channel.Y("y", FieldType.Quantitative)
-      )
-      .markArea()
-    val line = Chart(data)
-      .encode(
-        Channel.X("x", FieldType.Nominal),
-        Channel.Y("y2", FieldType.Quantitative)
-      )
-      .markPoint()
-
-    base.overlay(line).show()
 
   @main def runCompositeCharts(): Unit =
     layeredChart()
     stackedChart()
-    chartWithTwoAxis()

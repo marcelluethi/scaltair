@@ -27,9 +27,9 @@ object Data:
   /** Given a sequence of rows, each represented as a map from column names to
     * the values in the row, return a map from column names to the data values
     */
-  def fromRows(rows: Seq[Map[ColumnName, Seq[Any]]]): ColumnData =
+  def fromRows(rows: Seq[Map[ColumnName, Any]]): ColumnData =
     rows.foldLeft(Map.empty[ColumnName, Seq[Any]]) { (acc, row) =>
       acc ++ row.map { case (column, values) =>
-        column -> (acc.getOrElse(column, Seq.empty[Any]) ++ values)
+        column -> (acc.getOrElse(column, Seq.empty[Any]) :+ values)
       }
     }
