@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.vegalite
+package scaltair.vegalite
 
-import scalismo.plot.json.JsonObject
-import scalismo.plot.json.JsonString
-import scalismo.plot.json.JsonArray
-import scalismo.plot.json.JsonValue
-import scalismo.plot.json.JsonNumber
-import scalismo.plot.Data.ColumnData
+import scaltair.json.JsonObject
+import scaltair.json.JsonString
+import scaltair.json.JsonArray
+import scaltair.json.JsonValue
+import scaltair.json.JsonNumber
+import scaltair.Data.ColumnData
 
 final case class VegaData(data: ColumnData) extends VegaLite:
   require(

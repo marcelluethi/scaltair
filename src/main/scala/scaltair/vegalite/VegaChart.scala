@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.vegalite
+package scaltair.vegalite
 
-import scalismo.plot.vegalite.VegaMark
-import scalismo.plot.vegalite.VegaEncoding
-import scalismo.plot.vegalite.VegaData
-import scalismo.plot.json.JsonObject
-import scalismo.plot.json.JsonString
-import scalismo.plot.json.JsonNumber
-import scalismo.plot.json.Json
-import scalismo.plot.vegalite.VegaLite
-import scalismo.plot.json.JsonArray
-import scalismo.plot.plottarget.PlotTargetBrowser
-import scalismo.plot.plottarget.PlotTarget
-import scalismo.plot.json.JsonValue
-import scalismo.plot.vegalite.{
+import scaltair.vegalite.VegaMark
+import scaltair.vegalite.VegaEncoding
+import scaltair.vegalite.VegaData
+import scaltair.json.JsonObject
+import scaltair.json.JsonString
+import scaltair.json.JsonNumber
+import scaltair.json.Json
+import scaltair.vegalite.VegaLite
+import scaltair.json.JsonArray
+import scaltair.plottarget.PlotTargetBrowser
+import scaltair.plottarget.PlotTarget
+import scaltair.json.JsonValue
+import scaltair.vegalite.{
   HConcatViews,
   VConcatViews,
   CompositeView,
@@ -36,7 +36,7 @@ import scalismo.plot.vegalite.{
   LayeredView
 }
 
-import scalismo.plot.Data.ColumnData
+import scaltair.Data.ColumnData
 
 case class VegaChart(
     data: ColumnData,

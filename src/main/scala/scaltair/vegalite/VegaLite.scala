@@ -14,26 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.vegalite
+package scaltair.vegalite
 
-import scalismo.plot.json.JsonObject
-import scalismo.plot.json.JsonString
-import scalismo.plot.json.JsonValue
-import scalismo.plot.json.JsonNumber
-import scalismo.plot.json.JsonArray
+import scaltair.json.JsonValue
 
-sealed trait VegaView
-
-case class SingleView(mark: VegaMark, encoding: VegaEncoding) extends VegaView:
-
-  def addLayer(view: SingleView): LayeredView =
-    new LayeredView(Seq(this, view))
-
-sealed trait CompositeView extends VegaView:
-  def views: Seq[VegaView]
-
-case class LayeredView(val views: Seq[SingleView]) extends CompositeView
-
-case class HConcatViews(val views: Seq[VegaView]) extends CompositeView
-
-case class VConcatViews(val views: Seq[VegaView]) extends CompositeView
+trait VegaLite:
+  self =>
+  def spec: JsonValue

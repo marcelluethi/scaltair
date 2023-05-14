@@ -14,20 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.optics
+package scaltair
 
-case class Lens[A, B](
-    get: A => B,
-    set: (A, B) => A
-)
+object Data:
 
-object Lens:
+  type ColumnName = String
 
-  def compose[Outer, Inner, Value](
-      outer: Lens[Outer, Inner],
-      inner: Lens[Inner, Value]
-  ) =
-    Lens[Outer, Value](
-      get = outer.get andThen inner.get,
-      set = (obj, value) => outer.set(obj, inner.set(outer.get(obj), value))
-    )
+  /** A map from column names to the data values in the column.
+    */
+  type ColumnData = Map[ColumnName, Seq[Any]]
+
+  /** Given a sequence of rows, each represented as a map from column names to
+    * the values in the row, return a map from column names to the data values
+    */
+  def fromRows(rows: Seq[Map[ColumnName, Seq[Any]]]): ColumnData =
+    rows.foldLeft(Map.empty[ColumnName, Seq[Any]]) { (acc, row) =>
+      acc ++ row.map { case (column, values) =>
+        column -> (acc.getOrElse(column, Seq.empty[Any]) ++ values)
+      }
+    }

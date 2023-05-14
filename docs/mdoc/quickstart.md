@@ -1,19 +1,31 @@
-# Scalismo-plot
+# Scaltair
 
 To run the code in this tutorial, we need the following imports 
 ```scala mdoc:silent
-import scalismo.plot.data.*
-import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.plot.{Plot, Data}
+import scaltair.plot.plottarget.PlotTargets.plotTargetBrowser
 ```
 
-## Organising the data
+## Preparing the plot data
 
-Scalismo-plot is organised around the concept of a data frame. If you know [pandas](pandas.pydata.org), 
-or [R](r-project.org) you should have a good idea what a data frame is. Data frames in Scalismo-plot
-work the same way. 
+Before we can create a plot, we need to organize the data. 
+Data is organized in a tabular format, where each column consists
+of the same number of rows. Technically, it is implemented as a Map. 
 
-A data frame is just a collection of data that is organized in columns. Each column has a name. 
-A simple data frame consiting of three columns is created as follows
+As an example, we create data for plotting a function: $f : x \mapsto x^2$ where
+$x \in [0, 100]$. We would prepare the data as follows:
+
+```scala mdoc:silent
+val xs = Seq.range(0, 100)
+val ys = xs.map(x => x * x)
+val data = Map("x" -> xs, "y" -> ys)
+```
+
+Sometimes it is easier to create the data row-wise. In this case we would write
+```scala mdoc:silent
+val data2 = Data.
+```
+
 ```scala mdoc:silent
 val xs = Seq(1.0, 2.0, 3.0, 4.0)
 val df = DataFrame(

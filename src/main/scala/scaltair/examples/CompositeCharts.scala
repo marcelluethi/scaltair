@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.plots.examples
+package scaltair.examples
 
-import scalismo.plot.Chart
-import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
-import scalismo.plot.ChartProperties
-import scalismo.plot.Channel
-import scalismo.plot.Scale
-import scalismo.plot.ChartWithViews
-import scalismo.plot.FieldType
+import scaltair.Chart
+import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.ChartProperties
+import scaltair.Channel
+import scaltair.Scale
+import scaltair.ChartWithViews
+import scaltair.FieldType
 
 object CompositeCharts:
 

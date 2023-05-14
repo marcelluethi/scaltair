@@ -14,25 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot
+package scaltair
 
-import scalismo.plot.vegalite.TitleProp
-import scalismo.plot.vegalite.VegaMark
-import scalismo.plot.vegalite.VegaEncoding
-import scalismo.plot.vegalite.{VegaView}
-import scalismo.plot.vegalite.LayeredView
+import scaltair.vegalite.TitleProp
+import scaltair.vegalite.VegaMark
+import scaltair.vegalite.VegaEncoding
+import scaltair.vegalite.{VegaView}
+import scaltair.vegalite.LayeredView
 
-import scalismo.plot.vegalite.VegaChart
-import scalismo.plot.vegalite.VegaTitle
-import scalismo.plot.vegalite.TitleProp
+import scaltair.vegalite.VegaChart
+import scaltair.vegalite.VegaTitle
+import scaltair.vegalite.TitleProp
 
-import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
-import scalismo.plot.vegalite.SingleView
-import scalismo.plot.vegalite.HConcatViews
-import scalismo.plot.vegalite.CompositeView
-import scalismo.plot.vegalite.VConcatViews
-import scalismo.plot.plottarget.PlotTarget
-import scalismo.plot.Data.ColumnData
+import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.vegalite.SingleView
+import scaltair.vegalite.HConcatViews
+import scaltair.vegalite.CompositeView
+import scaltair.vegalite.VConcatViews
+import scaltair.plottarget.PlotTarget
+import scaltair.Data
+import scaltair.Data.ColumnData
 
 case class Chart(
     data: ColumnData

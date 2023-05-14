@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.vegalite
+package scaltair.vegalite
 
-import scalismo.plot.json.JsonObject
-import scalismo.plot.json.JsonString
+import scaltair.json.JsonObject
+import scaltair.json.JsonString
 import netscape.javascript.JSObject
 import VegaEncoding.{Channel, ChannelProp}
-import scalismo.plot.json.JsonValue
-import scalismo.plot.json.JsonBool
-import scalismo.plot.json.JsonArray
-import scalismo.plot.json.JsonNumber
+import scaltair.json.JsonValue
+import scaltair.json.JsonBool
+import scaltair.json.JsonArray
+import scaltair.json.JsonNumber
 
 final case class VegaEncoding(channels: Seq[Channel]) extends VegaLite:
   override def spec: JsonObject =

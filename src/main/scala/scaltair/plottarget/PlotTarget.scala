@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.plottarget
+package scaltair.plottarget
 
 import java.awt.Desktop
 import java.nio.file.Paths
 import java.nio.file.Files
 import java.net.URI
-import scalismo.plot.vegalite.VegaChart
-import scalismo.plot.json.JsonObject
-import scalismo.plot.json.Json
+import scaltair.vegalite.VegaChart
+import scaltair.json.JsonObject
+import scaltair.json.Json
 import scala.util.Success
 import scala.util.Try
 

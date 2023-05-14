@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.vegalite.examples
+package scaltair.vegalite.examples
 
-import scalismo.plot.vegalite.{VegaChart, VegaView, VegaEncoding}
-import scalismo.plot.vegalite.SingleView
-import scalismo.plot.vegalite.VegaMark
-import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
-import scalismo.plot.vegalite.VegaTitle
+import scaltair.vegalite.{VegaChart, VegaView, VegaEncoding}
+import scaltair.vegalite.SingleView
+import scaltair.vegalite.VegaMark
+import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.vegalite.VegaTitle
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.

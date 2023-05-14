@@ -1,14 +1,14 @@
 lazy val root = (project in file("."))
   .settings(
     organization := "ch.unibas.cs.gravis",
-    name := """scalismo-plot""",
-    version := "0.4-SNAPSHOT",
+    name := """scaltair""",
+    version := "0.1-SNAPSHOT",
     scalaVersion := "3.2.0",
     
-    homepage := Some(url("https://github.com/marcelluethi/scalismo-plot")),
+    homepage := Some(url("https://github.com/marcelluethi/scaltair")),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
-      ScmInfo(url("https://github.com/marcelluethi/scalismo-plot"), "git@github.com:marcelluethi/scalismo-plot.git")
+      ScmInfo(url("https://github.com/marcelluethi/scaltair"), "git@github.com:marcelluethi/scaltair.git")
     ),
     developers := List(
       Developer("marcelluethi", "marcelluethi", "marcel.luethi@unibas.ch", url("https://github.com/marcelluethi"))
@@ -48,5 +48,4 @@ lazy val root = (project in file("."))
 
 
   )
-
   .enablePlugins(MdocPlugin)

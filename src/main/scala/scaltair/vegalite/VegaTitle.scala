@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scalismo.plot.vegalite
+package scaltair.vegalite
 
-import scalismo.plot.json.JsonObject
-import scalismo.plot.json.JsonString
-import scalismo.plot.json.JsonArray
-import scalismo.plot.json.JsonValue
-import scalismo.plot.json.JsonNumber
+import scaltair.json.JsonObject
+import scaltair.json.JsonString
+import scaltair.json.JsonArray
+import scaltair.json.JsonValue
+import scaltair.json.JsonNumber
 
 case class VegaTitle(text: String, props: Seq[TitleProp] = Seq.empty)
     extends VegaLite:
