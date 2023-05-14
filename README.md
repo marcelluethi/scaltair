@@ -1,5 +1,7 @@
 # Scaltair
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scaltair_3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ch.unibas.cs.gravis/scaltair_3) 
+
 Simple plotting library for Scala based on [Vega-Lite](https://vega.github.io/vega-lite/), inspired by Python's [Vega-Altair](https://altair-viz.github.io/gallery/index.html).
 
 Plots can be rendered in the browser or from within a jupyter-notebook. 
@@ -18,8 +20,22 @@ data analysis task, it cannot create interactive plots nor does it support tempo
 
 It should be easy to add the missing functionality if this is required. The project is designed in such a way, that it is easy to understand and straight-forward to extend. It does not make use of any fancy language features or libraries. Pull requests are very welcome.
 
+
+
+### Trying it out
+
+While there is not yet an official version released, a snapshot release can be found 
+on sonatype. To try it out using [scala-cli](https://scala-cli.virtuslab.org/) add the 
+following head:
+
+```
+resolvers +=  Resolver.sonatypeRepo("snapshots"), 
+libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair" % "0.1-SNAPSHOT"
+```
+
 ##### Adding new features
 Adding new features consists of two simple steps:
 
 1. Add a case class in the package `scaltair.vegalite` representing the corresponding Vega construct and define how it is mapped to json. 
 2. Expose the functionality in the high-level dsl defined in `scaltair.Chart`. 
+
