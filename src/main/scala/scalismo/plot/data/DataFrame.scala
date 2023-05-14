@@ -278,10 +278,10 @@ object DataFrame:
 
   case class DataCell(name: String, value: CellValue)
 
-  enum CellValue(value: Any):
-    case Nominal(value: String) extends CellValue(value)
-    case Discrete(value: Int) extends CellValue(value)
-    case Continuous(value: Double) extends CellValue(value)
+  enum CellValue(val value: Any):
+    case Nominal(nominalValue: String) extends CellValue(nominalValue)
+    case Discrete(discreteValue: Int) extends CellValue(discreteValue)
+    case Continuous(continuousValue: Double) extends CellValue(continuousValue)
 
     def asContinuous: CellValue.Continuous = asContinuousOpt match
       case Some(c) => c

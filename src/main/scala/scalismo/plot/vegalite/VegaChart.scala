@@ -35,10 +35,11 @@ import scalismo.plot.vegalite.{
   SingleView,
   LayeredView
 }
-import scalismo.plot.DataValue
+
+import scalismo.plot.Data.ColumnData
 
 case class VegaChart(
-    data: Map[String, Seq[DataValue]],
+    data: ColumnData,
     val view: VegaView,
     title: VegaTitle = VegaTitle(""),
     width: Int = 600,

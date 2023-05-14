@@ -22,7 +22,6 @@ import scalismo.plot.json.JsonArray
 import scalismo.plot.json.JsonValue
 import scalismo.plot.json.JsonNumber
 import scalismo.plot.Data.ColumnData
-import scalismo.plot.DataValue
 
 final case class VegaData(data: ColumnData) extends VegaLite:
   require(
@@ -36,8 +35,15 @@ final case class VegaData(data: ColumnData) extends VegaLite:
         val fieldsJson = for fieldId <- data.keys yield
           val value = data(fieldId)(row)
           val valueJson = value match
-            case DataValue.Nominal(value)      => JsonString(value)
-            case DataValue.Quantitative(value) => JsonNumber(value)
+            case value: String => JsonString(value)
+            case value: Double => JsonNumber(value)
+            case value: Int    => JsonNumber(value)
+            case value: Short  => JsonNumber(value)
+            case value: Long   => JsonNumber(value.toDouble)
+            case _ =>
+              throw new IllegalArgumentException(
+                s"Unsupported data type: $value"
+              )
           fieldId -> valueJson
         JsonObject(fieldsJson.toSeq)
     JsonObject(Seq("values" -> JsonArray(dataJson.toSeq)))

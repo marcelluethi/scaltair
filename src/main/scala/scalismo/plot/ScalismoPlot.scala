@@ -26,6 +26,7 @@ import scalismo.plot.ChartWithViews
 import scalismo.plot.CompleteChart
 import scalismo.plot.Axis
 import scalismo.plot.vegalite.VegaChart
+import scalismo.plot.Data.ColumnData
 
 /** The high-level API for creating plots. The data is represented as a
   * DataFrame and passed when constructing the class. The data for the
@@ -35,13 +36,7 @@ import scalismo.plot.vegalite.VegaChart
 class ScalismoPlot(dataFrame: DataFrame) {
 
   val data = dataFrame.columns
-    .map(column =>
-      column.name -> column.values.map {
-        case CellValue.Continuous(value) => DataValue.Quantitative(value)
-        case CellValue.Discrete(value)   => DataValue.Quantitative(value)
-        case CellValue.Nominal(value)    => DataValue.Nominal(value)
-      }
-    )
+    .map(column => column.name -> column.values.map(_.value))
     .toMap
 
   val defaultWidth = 800
@@ -59,14 +54,25 @@ class ScalismoPlot(dataFrame: DataFrame) {
   ) =
     if series.isEmpty then
       Chart(data)
-        .encode(Channel.X(x), Channel.Y(y))
+        .encode(
+          Channel.X(x, FieldType.Quantitative),
+          Channel.Y(y, FieldType.Quantitative)
+        )
         .markLine()
-        .properties(ChartProperties(title = title, width = width, height = height))
+        .properties(
+          ChartProperties(title = title, width = width, height = height)
+        )
     else
       Chart(data)
-        .encode(Channel.X(x), Channel.Y(y), Channel.Color(series))
+        .encode(
+          Channel.X(x, FieldType.Quantitative),
+          Channel.Y(y, FieldType.Quantitative),
+          Channel.Color(series)
+        )
         .markLine()
-        .properties(ChartProperties(title = title, width = width, height = height))
+        .properties(
+          ChartProperties(title = title, width = width, height = height)
+        )
 
   /** Create a line plot with an error band.
     */
@@ -80,14 +86,25 @@ class ScalismoPlot(dataFrame: DataFrame) {
       height: Int = defaultHeight
   ) =
     val lineView = Chart(data)
-      .encode(Channel.X(x), Channel.Y(y))
+      .encode(
+        Channel.X(x, FieldType.Quantitative),
+        Channel.Y(y, FieldType.Quantitative)
+      )
       .markLine()
 
     val errorView = Chart(data)
-      .encode(Channel.X(x), Channel.Y(lowerBand), Channel.Y2(upperBand))
+      .encode(
+        Channel.X(x, FieldType.Quantitative),
+        Channel.Y(lowerBand, FieldType.Quantitative),
+        Channel.Y2(upperBand, FieldType.Quantitative)
+      )
       .markErrorBand()
 
-    lineView.overlay(errorView).properties(ChartProperties(title = title, width = width, height = height))
+    lineView
+      .overlay(errorView)
+      .properties(
+        ChartProperties(title = title, width = width, height = height)
+      )
 
   /** Create a scatter plot.
     */
@@ -101,12 +118,19 @@ class ScalismoPlot(dataFrame: DataFrame) {
   ) =
     if colorField.isEmpty() then
       Chart(data)
-        .encode(Channel.X(x), Channel.Y(y))
+        .encode(
+          Channel.X(x, FieldType.Quantitative),
+          Channel.Y(y, FieldType.Quantitative)
+        )
         .markCircle()
         .properties(ChartProperties(title = title))
     else
       Chart(data)
-        .encode(Channel.X(x), Channel.Y(y), Channel.Color(colorField))
+        .encode(
+          Channel.X(x, FieldType.Quantitative),
+          Channel.Y(y, FieldType.Quantitative),
+          Channel.Color(colorField)
+        )
         .markCircle()
         .properties(ChartProperties(title = title))
 
@@ -120,7 +144,10 @@ class ScalismoPlot(dataFrame: DataFrame) {
       height: Int = defaultHeight
   ) =
     Chart(data)
-      .encode(Channel.X(series), Channel.Y(values))
+      .encode(
+        Channel.X(series, FieldType.Nominal),
+        Channel.Y(values, FieldType.Quantitative)
+      )
       .markBoxplot()
       .properties(ChartProperties(title = title))
 
@@ -136,16 +163,18 @@ class ScalismoPlot(dataFrame: DataFrame) {
 
     val traceValues = data(values)
     val iterations =
-      Seq.range(0, traceValues.length).map(i => DataValue.Quantitative(i))
+      Seq.range(0, traceValues.length)
 
-    val fullData: Map[String, Seq[DataValue]] = Map(
+    val fullData: ColumnData = Map(
       "Iteration" -> iterations,
       values -> data(values)
     )
     Chart(fullData)
       .encode(
-        Channel.X("Iteration"),
-        Channel.Y(values).scale(Scale(axisIncludesZero = false))
+        Channel.X("Iteration", FieldType.Ordinal),
+        Channel
+          .Y(values, FieldType.Quantitative)
+          .scale(Scale(axisIncludesZero = false))
       )
       .markLine()
       .properties(ChartProperties(title = title))
@@ -161,7 +190,10 @@ class ScalismoPlot(dataFrame: DataFrame) {
       height: Int = defaultHeight
   ) =
     Chart(data)
-      .encode(Channel.X(x).binned(), Channel.Y(x).count())
+      .encode(
+        Channel.X(x, FieldType.Quantitative).binned(),
+        Channel.Y(x, FieldType.Quantitative).count()
+      )
       .markBar()
       .properties(ChartProperties(title = title))
 
@@ -180,13 +212,22 @@ class ScalismoPlot(dataFrame: DataFrame) {
           yield
             if keyR == keyV then
               Chart(data)
-                .encode(Channel.X(keyR).binned(), Channel.Y(keyV).count())
+                .encode(
+                  Channel.X(keyR, FieldType.Quantitative).binned(),
+                  Channel.Y(keyV, FieldType.Quantitative).count()
+                )
                 .markBar()
-            else Chart(data).encode(Channel.X(keyR), Channel.Y(keyV)).markCircle()
+            else
+              Chart(data)
+                .encode(
+                  Channel.X(keyR, FieldType.Quantitative),
+                  Channel.Y(keyV, FieldType.Quantitative)
+                )
+                .markCircle()
       cols.reduce[CompleteChart]((a, b) => a.hConcat(b))
 
     val chart = rows
       .reduce((a, b) => a.vConcat(b))
-      
+
     chart.vegaSpec
 }

@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package scalismo.plot
 
 import scalismo.plot.vegalite.TitleProp
@@ -15,21 +31,24 @@ import scalismo.plot.vegalite.SingleView
 import scalismo.plot.vegalite.HConcatViews
 import scalismo.plot.vegalite.CompositeView
 import scalismo.plot.vegalite.VConcatViews
-import scalismo.plot.DataValue
 import scalismo.plot.plottarget.PlotTarget
+import scalismo.plot.Data.ColumnData
 
 case class Chart(
-    data: Map[String, Seq[DataValue]]
+    data: ColumnData
 ):
 
   def encode(channels: Channel*): ChartWithEncoding =
 
-    val vegaChannels = for channel <- channels yield channel match
-      case Channel.X(fieldName, binned, scale, axis) =>
-        val xFieldType = data(fieldName).head match
-          case _: DataValue.Quantitative => VegaEncoding.FieldType.Quantitative
-          case _: DataValue.Nominal      => VegaEncoding.FieldType.Nominal
+    def fieldTypeToVegaFieldType(fieldType: FieldType): VegaEncoding.FieldType =
+      fieldType match
+        case FieldType.Quantitative => VegaEncoding.FieldType.Quantitative
+        case FieldType.Ordinal      => VegaEncoding.FieldType.Ordinal
+        case FieldType.Nominal      => VegaEncoding.FieldType.Nominal
+        case FieldType.Temporal     => VegaEncoding.FieldType.Temporal
 
+    val vegaChannels = for channel <- channels yield channel match
+      case Channel.X(fieldName, fieldType, binned, scale, axis) =>
         val scaleProp = scale.map(s =>
           VegaEncoding.ChannelProp.Scale(
             VegaEncoding.ScaleSpec.IncludeZero(s.axisIncludesZero)
@@ -47,16 +66,12 @@ case class Chart(
         VegaEncoding.Channel
           .X(
             fieldName,
-            xFieldType,
+            fieldTypeToVegaFieldType(fieldType),
             Seq(
               VegaEncoding.ChannelProp.Bin(binned)
             ) ++ scaleProp.toSeq ++ axisProp.toSeq
           )
-      case Channel.Y(fieldName, agg, scale, axis) =>
-        val yFieldType = data(fieldName).head match
-          case _: DataValue.Quantitative => VegaEncoding.FieldType.Quantitative
-          case _: DataValue.Nominal      => VegaEncoding.FieldType.Nominal
-
+      case Channel.Y(fieldName, fieldType, agg, scale, axis) =>
         val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))
         val scaleProp = scale.map(s =>
           VegaEncoding.ChannelProp.Scale(
@@ -73,15 +88,11 @@ case class Chart(
         )
         VegaEncoding.Channel.Y(
           fieldName,
-          yFieldType,
+          fieldTypeToVegaFieldType(fieldType),
           aggProp.toSeq ++ scaleProp.toSeq ++ axisProp.toSeq
         )
 
-      case Channel.Y2(fieldName, agg, scale, axis) =>
-        val yFieldType = data(fieldName).head match
-          case _: DataValue.Quantitative => VegaEncoding.FieldType.Quantitative
-          case _: DataValue.Nominal      => VegaEncoding.FieldType.Nominal
-
+      case Channel.Y2(fieldName, fieldType, agg, scale, axis) =>
         val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))
         val scaleProp = scale.map(s =>
           VegaEncoding.ChannelProp.Scale(
@@ -98,7 +109,7 @@ case class Chart(
         )
         VegaEncoding.Channel.Y2(
           fieldName,
-          yFieldType,
+          fieldTypeToVegaFieldType(fieldType),
           aggProp.toSeq ++ scaleProp.toSeq ++ axisProp.toSeq
         )
 
@@ -109,14 +120,17 @@ case class Chart(
     ChartWithEncoding(data, encoding = VegaEncoding(vegaChannels))
 
 case class ChartWithEncoding(
-    data: Map[String, Seq[DataValue]],
+    data: ColumnData,
     encoding: VegaEncoding = VegaEncoding(Seq.empty)
 ):
 
   def markLine(): ChartWithViews =
     ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Line, encoding))))
   def markCircle(): ChartWithViews =
-    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Circle, encoding))))
+    ChartWithViews(
+      data,
+      LayeredView(Seq(SingleView(VegaMark.Circle, encoding)))
+    )
   def markPoint(): ChartWithViews =
     ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Point, encoding))))
   def markBar(): ChartWithViews =
@@ -135,18 +149,18 @@ case class ChartWithEncoding(
     )
 
 trait CompleteChart:
-  def data: Map[String, Seq[DataValue]]
+  def data: ColumnData
   def view: VegaView
 
-  def properties(properties : ChartProperties) : CompleteChartWithProperties =
+  def properties(properties: ChartProperties): CompleteChartWithProperties =
     CompleteChartWithProperties(
       data,
       view,
       properties
     )
 
-  def vegaSpec : VegaChart = VegaChart(data, view)
-  def show()(using plotTarget : PlotTarget) : Unit =  vegaSpec.show()
+  def vegaSpec: VegaChart = VegaChart(data, view)
+  def show()(using plotTarget: PlotTarget): Unit = vegaSpec.show()
 
   def hConcat(other: CompleteChart): ChartWithCompositeView =
     ChartWithCompositeView(data, HConcatViews(Seq(this.view, other.view)))
@@ -155,16 +169,24 @@ trait CompleteChart:
     ChartWithCompositeView(data, VConcatViews(Seq(this.view, other.view)))
 
 case class CompleteChartWithProperties(
-    data: Map[String, Seq[DataValue]],
+    data: ColumnData,
     view: VegaView,
     properties: ChartProperties
 ) extends CompleteChart:
 
-  override def vegaSpec : VegaChart = VegaChart(data, view, VegaTitle(properties.title, Seq(TitleProp.FontSize(properties.titleFontSize))), properties.width, properties.height)
-
+  override def vegaSpec: VegaChart = VegaChart(
+    data,
+    view,
+    VegaTitle(
+      properties.title,
+      Seq(TitleProp.FontSize(properties.titleFontSize))
+    ),
+    properties.width,
+    properties.height
+  )
 
 case class ChartWithViews(
-    data: Map[String, Seq[DataValue]],
+    data: ColumnData,
     view: LayeredView
 ) extends CompleteChart:
 
@@ -173,78 +195,92 @@ case class ChartWithViews(
     ChartWithViews(data, LayeredView(this.view.views ++ other.view.views))
 
 case class ChartWithCompositeView(
-    data: Map[String, Seq[DataValue]],
+    data: ColumnData,
     view: CompositeView
 ) extends CompleteChart
 
 sealed trait Channel(
-    fieldName: String
+    fieldName: String,
+    fieldType: FieldType
 )
 
 object Channel:
   case class X(
       fieldName: String,
+      fieldType: FieldType,
       isBinned: Boolean = false,
       scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
       axis: Option[Axis] = None
-  ) extends Channel(fieldName):
+  ) extends Channel(fieldName, fieldType):
 
     def scale(scale: Scale): Channel.X =
-      Channel.X(fieldName, isBinned, Some(scale), axis)
+      Channel.X(fieldName, fieldType, isBinned, Some(scale), axis)
 
     def axis(axis: Axis): Channel.X =
-      Channel.X(fieldName, isBinned, scale, Some(axis))
+      Channel.X(fieldName, fieldType, isBinned, scale, Some(axis))
 
     def binned(): Channel =
-      Channel.X(fieldName, true, scale, axis)
+      Channel.X(fieldName, fieldType, true, scale, axis)
 
   case class Y(
       fieldName: String,
+      fieldType: FieldType,
       agg: Option[VegaEncoding.AggregateType] = None,
       scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
       axis: Option[Axis] = None
-  ) extends Channel(fieldName):
+  ) extends Channel(fieldName, fieldType):
 
     def count(): Channel =
-      Channel.Y(fieldName, Some(VegaEncoding.AggregateType.Count), scale)
+      Channel.Y(
+        fieldName,
+        fieldType,
+        Some(VegaEncoding.AggregateType.Count),
+        scale
+      )
 
     def scale(scale: Scale): Channel.Y =
-      Channel.Y(fieldName, agg, Some(scale))
+      Channel.Y(fieldName, fieldType, agg, Some(scale))
 
     def axis(axis: Axis): Channel.Y =
-      Channel.Y(fieldName, agg, scale, Some(axis))
+      Channel.Y(fieldName, fieldType, agg, scale, Some(axis))
 
   case class Y2(
       fieldName: String,
+      fieldType: FieldType,
       agg: Option[VegaEncoding.AggregateType] = None,
       scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
       axis: Option[Axis] = None
-  ) extends Channel(fieldName):
+  ) extends Channel(fieldName, fieldType):
 
     def count(): Channel =
-      Channel.Y2(fieldName, Some(VegaEncoding.AggregateType.Count), scale)
+      Channel.Y2(
+        fieldName,
+        fieldType,
+        Some(VegaEncoding.AggregateType.Count),
+        scale
+      )
 
     def scale(scale: Scale): Channel.Y2 =
-      Channel.Y2(fieldName, agg, Some(scale), axis)
+      Channel.Y2(fieldName, fieldType, agg, Some(scale), axis)
 
     def axis(axis: Axis): Channel.Y2 =
-      Channel.Y2(fieldName, agg, scale, Some(axis))
+      Channel.Y2(fieldName, fieldType, agg, scale, Some(axis))
 
-  case class Color(fieldName: String) extends Channel(fieldName)
-  case class Size(fieldName: String) extends Channel(fieldName)
+  case class Color(fieldName: String)
+      extends Channel(fieldName, FieldType.Nominal)
+  case class Size(fieldName: String)
+      extends Channel(fieldName, FieldType.Quantitative)
 
 case class Scale(axisIncludesZero: Boolean = false)
 
 case class Axis(labelFontSize: Int = 14, titleFontSize: Int = 14)
 
+case class ChartProperties(
+    title: String = "",
+    titleFontSize: Int = 20,
+    width: Int = 600,
+    height: Int = 600
+)
 
-case class ChartProperties(title : String = "", titleFontSize : Int = 20, width : Int = 600, height : Int = 600)
-
-@main def plotSpec(): Unit =
-  val xs = Seq.range(0, 200).map(_ / 10.0)
-  val ys = xs.map(x => math.sin(x) + math.cos(x))
-  val data = Map(
-    "x" -> xs.map(DataValue.Quantitative(_)),
-    "y" -> ys.map(DataValue.Quantitative(_))
-  )
-
+enum FieldType:
+  case Quantitative, Nominal, Ordinal, Temporal

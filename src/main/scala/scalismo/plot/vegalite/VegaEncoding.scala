@@ -111,6 +111,7 @@ object VegaEncoding:
   enum FieldType(val spec: JsonValue) extends VegaLite:
 
     case Quantitative extends FieldType(JsonString("quantitative"))
+    case Ordinal extends FieldType(JsonString("ordinal"))
     case Nominal extends FieldType(JsonString("nominal"))
     case Temporal extends FieldType(JsonString("temporal"))
 

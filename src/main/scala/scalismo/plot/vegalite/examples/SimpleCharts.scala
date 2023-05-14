@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package scalismo.plot.vegalite.examples
 
 import scalismo.plot.vegalite.{VegaChart, VegaView, VegaEncoding}
@@ -5,7 +21,6 @@ import scalismo.plot.vegalite.SingleView
 import scalismo.plot.vegalite.VegaMark
 import scalismo.plot.plottarget.PlotTargets.plotTargetBrowser
 import scalismo.plot.vegalite.VegaTitle
-import scalismo.plot.DataValue
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -14,8 +29,8 @@ object SimpleCharts {
 
   def barChart(): Unit =
     val data = Map(
-      "x" -> Seq("A", "B", "C", "D", "E").map(DataValue.Nominal(_)),
-      "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
+      "x" -> Seq("A", "B", "C", "D", "E"),
+      "y" -> Seq(5, 3, 6, 7, 2)
     )
     val view = SingleView(
       mark = VegaMark.Bar,
@@ -31,8 +46,8 @@ object SimpleCharts {
 
   def scatterPlot(): Unit =
     val data = Map(
-      "x" -> Seq(1, 2, 3, 4, 5).map(DataValue.Quantitative(_)),
-      "y" -> Seq(5, 3, 6, 7, 2).map(DataValue.Quantitative(_))
+      "x" -> Seq(1, 2, 3, 4, 5),
+      "y" -> Seq(5, 3, 6, 7, 2)
     )
     val view = SingleView(
       mark = VegaMark.Point,
@@ -50,8 +65,8 @@ object SimpleCharts {
     val xs = Seq.range(0, 200).map(_ / 10.0)
     val ys = xs.map(x => math.sin(x) + math.cos(x))
     val data = Map(
-      "x" -> xs.map(DataValue.Quantitative(_)),
-      "y" -> ys.map(DataValue.Quantitative(_))
+      "x" -> xs,
+      "y" -> ys
     )
     val view = SingleView(
       mark = VegaMark.Line,
@@ -71,13 +86,11 @@ object SimpleCharts {
     val zs = xs.map(x => math.sin(x) - math.cos(x))
 
     val data = Map(
-      "x" -> (xs ++ xs).map(DataValue.Quantitative(_)),
-      "y" -> (ys.map(DataValue.Quantitative(_)) ++ zs.map(
-        DataValue.Quantitative(_)
-      )),
-      "series" -> (Seq.fill(xs.length)(DataValue.Nominal("sin")) ++ Seq.fill(
+      "x" -> (xs ++ xs),
+      "y" -> (ys ++ zs),
+      "series" -> (Seq.fill(xs.length)("sin") ++ Seq.fill(
         xs.length
-      )(DataValue.Nominal("cos")))
+      )("cos"))
     )
     val view = SingleView(
       mark = VegaMark.Line,
@@ -96,7 +109,7 @@ object SimpleCharts {
     val xs = Seq.fill(1000)(scala.util.Random.nextGaussian())
 
     val data = Map(
-      "x" -> xs.map(DataValue.Quantitative(_))
+      "x" -> xs
     )
 
     val encoding = VegaEncoding(
@@ -128,12 +141,11 @@ object SimpleCharts {
 
     val xs = Seq.range(-10, 10)
     val data = Map(
-      "x" -> xs.map(DataValue.Quantitative(_)),
-      "y" -> xs.map(x => x * x).map(DataValue.Quantitative(_)),
-      "size" -> Seq.range(0, xs.length).map(DataValue.Quantitative(_)),
+      "x" -> xs,
+      "y" -> xs,
+      "size" -> Seq.range(0, xs.length),
       "color" -> xs
         .map(x => if x < 0 then 1 else 2)
-        .map(DataValue.Quantitative(_))
     )
 
     val encoding = VegaEncoding(
