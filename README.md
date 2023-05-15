@@ -6,6 +6,29 @@ Simple plotting library for Scala based on [Vega-Lite](https://vega.github.io/ve
 
 Plots can be rendered in the browser or from within a jupyter-notebook. 
 
+### Example
+
+Here is an example using Scaltair to quickly visualize and display a dataset with the native Vega-Lite renderer in the Browser:
+
+```scala 
+import scaltair.*
+import scaltair.PlotTargets.plotTargetBrowser
+import scaltair.vegalite.datasets.VegaDatasets
+
+@main def examplePlot() = 
+  val data = VegaDatasets.loadCars().get
+  val plot = Chart(data)
+    .encode(
+      Channel.X("Horsepower", FieldType.Quantitative),
+      Channel.Y("Miles_per_Gallon", FieldType.Quantitative),
+      Channel.Color("Origin")
+    )
+    .markCircle()
+    .show()
+```
+
+![cars-plot](./cars-plot.svg)
+
 ### Getting started
 
 See the [quickstart Guide](docs/quickstart.md). 

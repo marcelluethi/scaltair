@@ -1,13 +1,18 @@
-// package scaltair.local
+package scaltair.local
 
-// import scaltair.{Plot, Data}
-// import scaltair.plot.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.*
+import scaltair.PlotTargets.plotTargetBrowser
+import scaltair.vegalite.datasets.VegaDatasets
 
-// object Main extends App{
 
-//     val xs = Seq.range(0, 100)
-//     val ys = xs.map(x => x * x)
-//     val data = Map("x" -> xs, "y" -> ys)
+@main def examplePlot() = 
+  val data = VegaDatasets.loadCars().get
+  val plot = Chart(data)
+    .encode(
+      Channel.X("Horsepower", FieldType.Quantitative),
+      Channel.Y("Miles_per_Gallon", FieldType.Quantitative),
+      Channel.Color("Origin")
+    )
+    .markCircle()
+    .show()
 
-//     val plot = Plot(data).
-// }
