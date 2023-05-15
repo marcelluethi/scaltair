@@ -26,12 +26,12 @@ import scaltair.vegalite.VegaChart
 import scaltair.vegalite.VegaTitle
 import scaltair.vegalite.TitleProp
 
-import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargets.plotTargetBrowser
 import scaltair.vegalite.SingleView
 import scaltair.vegalite.HConcatViews
 import scaltair.vegalite.CompositeView
 import scaltair.vegalite.VConcatViews
-import scaltair.plottarget.PlotTarget
+import scaltair.PlotTarget
 import scaltair.Data
 import scaltair.Data.ColumnData
 

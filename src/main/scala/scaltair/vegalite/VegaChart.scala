@@ -25,8 +25,7 @@ import scaltair.json.JsonNumber
 import scaltair.json.Json
 import scaltair.vegalite.VegaLite
 import scaltair.json.JsonArray
-import scaltair.plottarget.PlotTargetBrowser
-import scaltair.plottarget.PlotTarget
+import scaltair.PlotTarget
 import scaltair.json.JsonValue
 import scaltair.vegalite.{
   HConcatViews,

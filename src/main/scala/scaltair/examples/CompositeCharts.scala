@@ -17,7 +17,7 @@
 package scaltair.examples
 
 import scaltair.Chart
-import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargets.plotTargetBrowser
 import scaltair.ChartProperties
 import scaltair.Channel
 import scaltair.Scale
@@ -64,14 +64,14 @@ object CompositeCharts:
     val view2 = Chart(data)
       .encode(
         Channel.X("shoe-size", FieldType.Ordinal),
-        Channel.Y("weight", FieldType.Quantitative),
+        Channel.Y("weight", FieldType.Quantitative)
       )
       .markLine()
 
-      view1.hConcat(view2)
+    view1
+      .hConcat(view2)
       .properties(ChartProperties(title = "stacked charts"))
       .show()
-
 
   @main def runCompositeCharts(): Unit =
     layeredChart()

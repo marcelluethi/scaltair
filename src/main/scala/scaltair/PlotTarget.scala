@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scaltair.plottarget
+package scaltair
 
 import java.awt.Desktop
 import java.nio.file.Paths

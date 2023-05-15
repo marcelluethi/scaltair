@@ -17,7 +17,7 @@
 package scaltair.examples
 
 import scaltair.Chart
-import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargets.plotTargetBrowser
 import scaltair.Channel
 import scaltair.Scale
 import scaltair.ChartProperties

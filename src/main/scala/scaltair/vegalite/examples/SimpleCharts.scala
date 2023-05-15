@@ -19,7 +19,7 @@ package scaltair.vegalite.examples
 import scaltair.vegalite.{VegaChart, VegaView, VegaEncoding}
 import scaltair.vegalite.SingleView
 import scaltair.vegalite.VegaMark
-import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargets.plotTargetBrowser
 import scaltair.vegalite.VegaTitle
 
 /** Example charts, which show how to use the vega lite specification directly.
