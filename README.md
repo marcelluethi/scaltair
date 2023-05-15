@@ -48,8 +48,7 @@ It should be easy to add the missing functionality if this is required. The proj
 ### Trying it out
 
 While there is not yet an official version released, a snapshot release can be found 
-on sonatype. To try it out using [scala-cli](https://scala-cli.virtuslab.org/) add the 
-following head:
+on sonatype. To try it out, add the following dependency to your `build.sbt`:
 
 ```
 resolvers +=  Resolver.sonatypeRepo("snapshots"), 
