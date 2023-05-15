@@ -8,7 +8,7 @@ Plots can be rendered in the browser or from within a jupyter-notebook.
 
 ### Example
 
-Here is an example using Scaltair to quickly visualize and display a dataset with the native Vega-Lite renderer in the Browser:
+Here is an example using Scaltair to quickly visualize and display a dataset with the native Vega-Lite renderer in the browser:
 
 ```scala 
 import scaltair.*
