@@ -12,7 +12,7 @@ Here is an example using Scaltair to quickly visualize and display a dataset wit
 
 ```scala 
 import scaltair.*
-import scaltair.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargetBrowser.given
 import scaltair.vegalite.datasets.VegaDatasets
 
 @main def examplePlot() = 
@@ -41,9 +41,7 @@ It supports a subset of the functionality provided by
 vega-lite and altair. While it can already produce most plots used in a typical scientific context or 
 data analysis task, it cannot create interactive plots nor does it support temporal data. 
 
-It should be easy to add the missing functionality if this is required. The project is designed in such a way, that it is easy to understand and straight-forward to extend. It does not make use of any fancy language features or libraries. Pull requests are very welcome.
-
-
+It should be easy to add the missing functionality if this is required. The project is designed in such a way, that it is easy to understand and extend. It does not make use of any fancy language features or libraries. Pull requests are very welcome.
 
 ### Trying it out
 
@@ -55,7 +53,15 @@ resolvers +=  Resolver.sonatypeRepo("snapshots"),
 libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair" % "0.1-SNAPSHOT"
 ```
 
-##### Adding new features
+If you want to use the jupyter-notebook integration, you also need to add the following dependency:
+
+```
+libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair-jupyter" % "0.1-SNAPSHOT"
+```
+
+##### Adding new features to Scaltair
+
+
 Adding new features consists of two simple steps:
 
 1. Add a case class in the package `scaltair.vegalite` representing the corresponding Vega construct and define how it is mapped to json. 

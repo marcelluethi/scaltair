@@ -1,11 +1,10 @@
 package scaltair.local
 
 import scaltair.*
-import scaltair.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargetBrowser.given
 import scaltair.vegalite.datasets.VegaDatasets
 
-
-@main def examplePlot() = 
+@main def examplePlot() =
   val data = VegaDatasets.loadCars().get
   val plot = Chart(data)
     .encode(
@@ -15,4 +14,3 @@ import scaltair.vegalite.datasets.VegaDatasets
     )
     .markCircle()
     .show()
-

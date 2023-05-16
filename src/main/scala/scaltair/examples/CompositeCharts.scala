@@ -17,12 +17,13 @@
 package scaltair.examples
 
 import scaltair.Chart
-import scaltair.PlotTargets.plotTargetBrowser
 import scaltair.ChartProperties
 import scaltair.Channel
 import scaltair.Scale
 import scaltair.ChartWithViews
 import scaltair.FieldType
+
+import scaltair.PlotTargetBrowser.given
 
 object CompositeCharts:
 

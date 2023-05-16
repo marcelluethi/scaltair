@@ -6,7 +6,7 @@ To run the code in this tutorial, we need the following imports
 import scaltair.{Chart, Data}
 import scaltair.FieldType
 import scaltair.Channel
-import scaltair.plottarget.PlotTargets.plotTargetBrowser
+import scaltair.PlotTargetBrowser.given
 import scaltair.ChartProperties
 ```
 
