@@ -84,7 +84,7 @@ object VegaEncoding:
     case Field(fieldName: String)
         extends ChannelProp("field", JsonString(fieldName))
     case Type(fieldType: FieldType) extends ChannelProp("type", fieldType.spec)
-    case Bin(isBinned: Boolean) extends ChannelProp("bin", JsonBool(isBinned))
+    case Bin(bin: BinConfig) extends ChannelProp("bin", bin.spec)
     case Aggregate(agregateType: AggregateType)
         extends ChannelProp("aggregate", agregateType.spec)
     case Custom(propName: String, customSpec: JsonValue)
@@ -107,6 +107,10 @@ object VegaEncoding:
         extends AxisProp("labelFontSize", JsonNumber(fontSize))
     case TitleFontSize(fontSize: Int)
         extends AxisProp("titleFontSize", JsonNumber(fontSize))
+
+  enum BinConfig(val spec: JsonValue) extends VegaLite:
+    case MaxBins(maxBins : Int) extends BinConfig(JsonObject(Seq("maxbins" -> JsonNumber(maxBins))))
+    case AutoBin(b : Boolean) extends BinConfig(JsonBool(b))
 
   enum FieldType(val spec: JsonValue) extends VegaLite:
 

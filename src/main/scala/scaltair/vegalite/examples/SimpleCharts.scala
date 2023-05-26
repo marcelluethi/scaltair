@@ -118,7 +118,7 @@ object SimpleCharts {
         VegaEncoding.Channel.X(
           "x",
           VegaEncoding.FieldType.Quantitative,
-          Seq(VegaEncoding.ChannelProp.Bin(true))
+          Seq(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true)))
         ),
         VegaEncoding.Channel.Y(
           "x",
@@ -154,7 +154,7 @@ object SimpleCharts {
         VegaEncoding.Channel.X(
           "x",
           VegaEncoding.FieldType.Quantitative,
-          Seq(VegaEncoding.ChannelProp.Bin(true))
+          Seq(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true)))
         ),
         VegaEncoding.Channel.Y(
           "y",

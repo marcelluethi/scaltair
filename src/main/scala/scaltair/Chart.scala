@@ -49,6 +49,12 @@ case class Chart(
         case FieldType.Nominal      => VegaEncoding.FieldType.Nominal
         case FieldType.Temporal     => VegaEncoding.FieldType.Temporal
 
+    def binPropsFromBinned(bin: Option[Bin]): Option[VegaEncoding.ChannelProp] =
+      bin match
+        case Some(Bin.Auto) => Some(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true)))
+        case Some(Bin.MaxBins(i)) => Some(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.MaxBins(i)))
+        case _ => None
+
     val vegaChannels = for channel <- channels yield channel match
       case Channel.X(fieldName, fieldType, binned, scale, axis) =>
         val scaleProp = scale.map(s =>
@@ -69,9 +75,7 @@ case class Chart(
           .X(
             fieldName,
             fieldTypeToVegaFieldType(fieldType),
-            Seq(
-              VegaEncoding.ChannelProp.Bin(binned)
-            ) ++ scaleProp.toSeq ++ axisProp.toSeq
+            binPropsFromBinned(binned).toSeq ++ scaleProp.toSeq ++ axisProp.toSeq
           )
       case Channel.Y(fieldName, fieldType, agg, scale, axis) =>
         val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))
@@ -210,20 +214,23 @@ object Channel:
   case class X(
       fieldName: String,
       fieldType: FieldType,
-      isBinned: Boolean = false,
+      bins: Option[Bin] = None,
       scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
       axis: Option[Axis] = None
   ) extends Channel(fieldName, fieldType):
 
     def scale(scale: Scale): Channel.X =
-      Channel.X(fieldName, fieldType, isBinned, Some(scale), axis)
+      Channel.X(fieldName, fieldType, bins, Some(scale), axis)
 
     def axis(axis: Axis): Channel.X =
-      Channel.X(fieldName, fieldType, isBinned, scale, Some(axis))
+      Channel.X(fieldName, fieldType, bins, scale, Some(axis))
 
     def binned(): Channel =
-      Channel.X(fieldName, fieldType, true, scale, axis)
-
+      Channel.X(fieldName, fieldType, Some(Bin.Auto), scale, axis)
+  
+    def binned(maxBins : Int): Channel =
+      Channel.X(fieldName, fieldType, Some(Bin.MaxBins(maxBins)), scale, axis)
+  
   case class Y(
       fieldName: String,
       fieldType: FieldType,
@@ -283,6 +290,10 @@ case class ChartProperties(
     width: Int = 600,
     height: Int = 600
 )
+
+enum Bin:
+  case Auto extends Bin
+  case MaxBins(maxBins: Int) extends Bin
 
 enum FieldType:
   case Quantitative, Nominal, Ordinal, Temporal
