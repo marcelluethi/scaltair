@@ -65,8 +65,8 @@ object SimpleCharts:
 
     Chart(data)
       .encode(
-        Channel.X("x", FieldType.Quantitative),
-        Channel.Y("y", FieldType.Quantitative)
+        Channel.X("x", FieldType.Quantitative).scale(Scale.withRange(0 to 10)),
+        Channel.Y("y", FieldType.Quantitative).scale(Scale.withRange(0 to 10)),
       )
       .markLine()
       .properties(ChartProperties(title = "line", titleFontSize = 20))
@@ -128,9 +128,9 @@ object SimpleCharts:
       .show()
 
   @main def runSimpleCharts() =
-    barChart()
-    scatterPlot()
+    // barChart()
+    // scatterPlot()
     linePlot()
-    lineSeries()
-    histogram()
-    bubblePlot()
+    // lineSeries()
+    // histogram()
+    // bubblePlot()
