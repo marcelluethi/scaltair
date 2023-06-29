@@ -47,7 +47,7 @@ object CompositeCharts:
       .encode(
         Channel.X("shoe-size", FieldType.Ordinal),
         Channel.Y("stature", FieldType.Quantitative),
-        Channel.Color("sex")
+        Channel.Color("sex", FieldType.Nominal)
       )
       .markBar()
 

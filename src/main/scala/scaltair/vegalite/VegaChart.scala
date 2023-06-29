@@ -61,7 +61,7 @@ case class VegaChart(
       "description" -> JsonString("."),
       "width" -> JsonNumber(width),
       "height" -> JsonNumber(height),
-      "title" -> title.spec,
+      "title" -> title.spec
     )
 
     val viewSpec = view match
@@ -77,10 +77,9 @@ case class VegaChart(
       case concatView: VConcatViews =>
         Seq("vconcat" -> collectSpecForCompositeView(concatView))
 
-
     // data comes last, as this is most convenient
     // when the confiuration options are first when working with vega-editor
-    val dataSpec =   "data" -> dataspec
+    val dataSpec = "data" -> dataspec
     JsonObject(baseSpec ++ viewSpec :+ dataSpec)
 
   private def collectSpecForCompositeView(

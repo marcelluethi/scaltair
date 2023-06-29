@@ -51,37 +51,35 @@ case class Chart(
 
     def binPropsFromBinned(bin: Option[Bin]): Option[VegaEncoding.ChannelProp] =
       bin match
-        case Some(Bin.Auto) => Some(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true)))
-        case Some(Bin.MaxBins(i)) => Some(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.MaxBins(i)))
+        case Some(Bin.Auto) =>
+          Some(
+            VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true))
+          )
+        case Some(Bin.MaxBins(i)) =>
+          Some(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.MaxBins(i)))
         case _ => None
 
+    def scalePropsFromScale(
+        scale: Option[Scale]
+    ): Option[VegaEncoding.ChannelProp] =
+      val scalePropRange =
+        for
+          s <- scale
+          r <- s.range
+        yield VegaEncoding.ChannelProp.Scale(
+          VegaEncoding.ScaleSpec.FromDomain(VegaEncoding.Domain(r.min, r.max))
+        )
 
-    def scalePropsFromScale(scale : Option[Scale]): Option[VegaEncoding.ChannelProp] =
-      val scalePropRange = 
-          for 
-            s <- scale
-            r <- s.range
-          yield 
-            VegaEncoding.ChannelProp.Scale(VegaEncoding.ScaleSpec.FromDomain(VegaEncoding.Domain(r.min, r.max)))
-        
-      val scalePropIncludeZero = 
-          for
-            s <- scale
-          yield 
-            VegaEncoding.ChannelProp.Scale(VegaEncoding.ScaleSpec.IncludeZero(s.axisIncludesZero))
-      if scalePropRange.isDefined then 
-        scalePropRange
+      val scalePropIncludeZero =
+        for s <- scale
+        yield VegaEncoding.ChannelProp.Scale(
+          VegaEncoding.ScaleSpec.IncludeZero(s.axisIncludesZero)
+        )
+      if scalePropRange.isDefined then scalePropRange
       else scalePropIncludeZero
-      
+
     val vegaChannels = for channel <- channels yield channel match
-      case Channel.X(
-        fieldName, 
-        fieldType, 
-        binned, 
-        scale, 
-        axis) =>
-        
-        
+      case Channel.X(fieldName, fieldType, binned, scale, axis) =>
         val axisProp = axis.map(a =>
           VegaEncoding.ChannelProp.Axis(
             Seq(
@@ -94,10 +92,12 @@ case class Chart(
           .X(
             fieldName,
             fieldTypeToVegaFieldType(fieldType),
-            binPropsFromBinned(binned).toSeq ++ scalePropsFromScale(scale) ++ axisProp.toSeq
+            binPropsFromBinned(binned).toSeq ++ scalePropsFromScale(
+              scale
+            ) ++ axisProp.toSeq
           )
       case Channel.Y(fieldName, fieldType, agg, scale, axis) =>
-        val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))      
+        val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))
         val axisProp = axis.map(a =>
           VegaEncoding.ChannelProp.Axis(
             Seq(
@@ -133,8 +133,9 @@ case class Chart(
           aggProp.toSeq ++ scaleProp.toSeq ++ axisProp.toSeq
         )
 
-      case Channel.Color(fieldName) =>
-        VegaEncoding.Channel.Color(fieldName, Seq.empty)
+      case Channel.Color(fieldName, fieldType: FieldType) =>
+        VegaEncoding.Channel
+          .Color(fieldName, fieldTypeToVegaFieldType(fieldType), Seq.empty)
       case Channel.Size(fieldName) =>
         VegaEncoding.Channel.Size(fieldName, Seq.empty)
     ChartWithEncoding(data, encoding = VegaEncoding(vegaChannels))
@@ -151,6 +152,8 @@ case class ChartWithEncoding(
       data,
       LayeredView(Seq(SingleView(VegaMark.Circle, encoding)))
     )
+  def markRect(): ChartWithViews =
+    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Rect, encoding))))
   def markPoint(): ChartWithViews =
     ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Point, encoding))))
   def markBar(): ChartWithViews =
@@ -241,10 +244,10 @@ object Channel:
 
     def binned(): Channel.X =
       Channel.X(fieldName, fieldType, Some(Bin.Auto), scale, axis)
-  
-    def binned(maxBins : Int): Channel.X =
+
+    def binned(maxBins: Int): Channel.X =
       Channel.X(fieldName, fieldType, Some(Bin.MaxBins(maxBins)), scale, axis)
-  
+
   case class Y(
       fieldName: String,
       fieldType: FieldType,
@@ -289,18 +292,22 @@ object Channel:
     def axis(axis: Axis): Channel.Y2 =
       Channel.Y2(fieldName, fieldType, agg, scale, Some(axis))
 
-  case class Color(fieldName: String)
-      extends Channel(fieldName, FieldType.Nominal)
+  case class Color(fieldName: String, fieldType: FieldType)
+      extends Channel(fieldName, fieldType)
   case class Size(fieldName: String)
       extends Channel(fieldName, FieldType.Quantitative)
 
-case class Scale(axisIncludesZero : Boolean = false, range : Option[Range] = None):
-  def range(range : Range) : Scale = this.copy(range = Some(range))
-  def axisIncludesZero(axisIncludesZero : Boolean) : Scale = this.copy(axisIncludesZero = axisIncludesZero)
+case class Scale(
+    axisIncludesZero: Boolean = false,
+    range: Option[Range] = None
+):
+  def range(range: Range): Scale = this.copy(range = Some(range))
+  def axisIncludesZero(axisIncludesZero: Boolean): Scale =
+    this.copy(axisIncludesZero = axisIncludesZero)
 
 object Scale:
-  def withRange(range : Range) : Scale = Scale(range = Some(range))
-  def includesZero : Scale = Scale(axisIncludesZero = true)
+  def withRange(range: Range): Scale = Scale(range = Some(range))
+  def includesZero: Scale = Scale(axisIncludesZero = true)
 
 case class Axis(labelFontSize: Int = 14, titleFontSize: Int = 14)
 

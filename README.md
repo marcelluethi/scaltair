@@ -21,7 +21,7 @@ import scaltair.vegalite.datasets.VegaDatasets
     .encode(
       Channel.X("Horsepower", FieldType.Quantitative),
       Channel.Y("Miles_per_Gallon", FieldType.Quantitative),
-      Channel.Color("Origin")
+      Channel.Color("Origin", FieldType.Nominal)
     )
     .markCircle()
     .show()

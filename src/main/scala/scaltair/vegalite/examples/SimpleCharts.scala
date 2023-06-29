@@ -99,7 +99,7 @@ object SimpleCharts {
         Seq(
           VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
           VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative),
-          VegaEncoding.Channel.Color("series")
+          VegaEncoding.Channel.Color("series", VegaEncoding.FieldType.Nominal)
         )
       )
     )
@@ -118,7 +118,9 @@ object SimpleCharts {
         VegaEncoding.Channel.X(
           "x",
           VegaEncoding.FieldType.Quantitative,
-          Seq(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true)))
+          Seq(
+            VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true))
+          )
         ),
         VegaEncoding.Channel.Y(
           "x",
@@ -154,7 +156,9 @@ object SimpleCharts {
         VegaEncoding.Channel.X(
           "x",
           VegaEncoding.FieldType.Quantitative,
-          Seq(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true)))
+          Seq(
+            VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true))
+          )
         ),
         VegaEncoding.Channel.Y(
           "y",
@@ -164,7 +168,8 @@ object SimpleCharts {
           "size"
         ),
         VegaEncoding.Channel.Color(
-          "size"
+          "size",
+          VegaEncoding.FieldType.Nominal
         )
       )
     )

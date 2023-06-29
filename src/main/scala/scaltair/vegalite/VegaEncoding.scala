@@ -66,10 +66,16 @@ object VegaEncoding:
         otherProps: Seq[ChannelProp] = Seq.empty
     ) extends Channel("y2", Seq(ChannelProp.Field(fieldName)))
 
-    case Color(fieldName: String, otherProps: Seq[ChannelProp] = Seq.empty)
-        extends Channel(
+    case Color(
+        fieldName: String,
+        fieldType: FieldType,
+        otherProps: Seq[ChannelProp] = Seq.empty
+    ) extends Channel(
           "color",
-          Seq(ChannelProp.Field(fieldName)) ++ otherProps
+          Seq(
+            ChannelProp.Field(fieldName),
+            ChannelProp.Type(fieldType)
+          ) ++ otherProps
         )
     case Size(fieldName: String, otherProps: Seq[ChannelProp] = Seq.empty)
         extends Channel(
@@ -109,8 +115,9 @@ object VegaEncoding:
         extends AxisProp("titleFontSize", JsonNumber(fontSize))
 
   enum BinConfig(val spec: JsonValue) extends VegaLite:
-    case MaxBins(maxBins : Int) extends BinConfig(JsonObject(Seq("maxbins" -> JsonNumber(maxBins))))
-    case AutoBin(b : Boolean) extends BinConfig(JsonBool(b))
+    case MaxBins(maxBins: Int)
+        extends BinConfig(JsonObject(Seq("maxbins" -> JsonNumber(maxBins))))
+    case AutoBin(b: Boolean) extends BinConfig(JsonBool(b))
 
   enum FieldType(val spec: JsonValue) extends VegaLite:
 

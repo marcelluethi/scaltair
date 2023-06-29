@@ -53,8 +53,12 @@ object PlotTargetBrowser extends PlotTarget:
     then Desktop.getDesktop().browse(tmpURI)
     else
       // fallback to xdg-open on linux
-      try (Runtime.getRuntime().exec("xdg-open " + tmpURI)) 
-      catch case (e : Throwable) => throw Exception("Could not open browser. Please open the following file manually: " + tmpURI)
+      try (Runtime.getRuntime().exec("xdg-open " + tmpURI))
+      catch
+        case (e: Throwable) =>
+          throw Exception(
+            "Could not open browser. Please open the following file manually: " + tmpURI
+          )
 
   private def writeSpecToFile(spec: JsonObject): URI =
 
@@ -107,15 +111,16 @@ object PlotTargetBrowser extends PlotTarget:
   private def cleanupOldFiles(): Unit =
     val tempDir = Paths.get(System.getProperty("java.io.tmpdir"))
     val files = tempDir.toFile().listFiles()
-    
+
     // delete all files that start with the given prefix and end on the suffix
     // and which are older than 1 minute
-    files.foreach( f =>
-      if (f.getName().startsWith(FILE_PREFIX) && f.getName().endsWith(FILE_SUFFIX)) then
+    files.foreach(f =>
+      if (f
+          .getName()
+          .startsWith(FILE_PREFIX) && f.getName().endsWith(FILE_SUFFIX))
+      then
         val lastModified = f.lastModified()
         val now = System.currentTimeMillis()
         val age = now - lastModified
-        if (age > 60000) then
-          f.delete()        
+        if (age > 60000) then f.delete()
     )
-    

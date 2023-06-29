@@ -22,6 +22,7 @@ import scaltair.Channel
 import scaltair.Scale
 import scaltair.ChartProperties
 import scaltair.FieldType
+import scaltair.Data
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -66,7 +67,7 @@ object SimpleCharts:
     Chart(data)
       .encode(
         Channel.X("x", FieldType.Quantitative).scale(Scale.withRange(0 to 10)),
-        Channel.Y("y", FieldType.Quantitative).scale(Scale.withRange(0 to 10)),
+        Channel.Y("y", FieldType.Quantitative).scale(Scale.withRange(0 to 10))
       )
       .markLine()
       .properties(ChartProperties(title = "line", titleFontSize = 20))
@@ -86,7 +87,7 @@ object SimpleCharts:
       .encode(
         Channel.X("x", FieldType.Quantitative),
         Channel.Y("y", FieldType.Quantitative),
-        Channel.Color("series")
+        Channel.Color("series", FieldType.Quantitative)
       )
       .markLine()
       .show()
@@ -122,15 +123,35 @@ object SimpleCharts:
         Channel.X("x", FieldType.Quantitative).binned(),
         Channel.Y("y", FieldType.Quantitative),
         Channel.Size("size"),
-        Channel.Color("color")
+        Channel.Color("color", FieldType.Nominal)
       )
       .markCircle()
+      .show()
+
+  def heatMap(): Unit =
+    val matrixData = Seq(Seq(1, 2, 3), Seq(4, 5, 6), Seq(7, 8, 9))
+    val rows = for
+      x <- 0 until matrixData.size
+      y <- 0 until matrixData(0).size
+    yield Map(
+      "x" -> x,
+      "y" -> y,
+      "z" -> matrixData(x)(y)
+    )
+    Chart(Data.fromRows(rows))
+      .encode(
+        Channel.X("x", FieldType.Ordinal),
+        Channel.Y("y", FieldType.Ordinal),
+        Channel.Color("z", FieldType.Quantitative)
+      )
+      .markRect()
       .show()
 
   @main def runSimpleCharts() =
     // barChart()
     // scatterPlot()
-    linePlot()
+    // linePlot()
+    heatMap()
     // lineSeries()
     // histogram()
     // bubblePlot()
