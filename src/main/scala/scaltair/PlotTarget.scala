@@ -33,26 +33,30 @@ object PlotTargetBrowser extends PlotTarget:
 
   given plotTargetBrowser: PlotTarget = PlotTargetBrowser
 
+  private final val FILE_PREFIX = "scalismo-plot-"
+  private final val FILE_SUFFIX = ".html"
+
   def show(chart: VegaChart): Unit =
     val spec = chart.spec
+
+    // We write the spec to the file system and open it in the browser.
+    // To avoid cluttering the file system, we clean up all files in the
+    // temporary directory we might have written in previous runs.
+    cleanupOldFiles()
+    val tmpURI = writeSpecToFile(spec)
+
     if (
       Desktop.isDesktopSupported() && Desktop
         .getDesktop()
         .isSupported(Desktop.Action.BROWSE)
     )
-    then
-      val tmpURI = uri(spec)
-      Desktop.getDesktop().browse(tmpURI)
-    else throw new Exception("Cannot show plot in browser")
+    then Desktop.getDesktop().browse(tmpURI)
+    else
+      // fallback to xdg-open on linux
+      try (Runtime.getRuntime().exec("xdg-open " + tmpURI)) 
+      catch case (e : Throwable) => throw Exception("Could not open browser. Please open the following file manually: " + tmpURI)
 
-  private def writeToTempFile(content: String) =
-    val tempFile = Files.createTempFile("scalismo-plot-", ".html")
-    tempFile.toFile.deleteOnExit
-    Files.write(tempFile, content.getBytes)
-
-    tempFile
-
-  private def uri(spec: JsonObject): URI =
+  private def writeSpecToFile(spec: JsonObject): URI =
 
     val renderedSpec = Json.stringify(spec)
     val theHtml = raw"""<!DOCTYPE html>
@@ -92,3 +96,26 @@ object PlotTargetBrowser extends PlotTarget:
                 </html> """
     val tempFi = writeToTempFile(theHtml)
     tempFi.toUri()
+
+  private def writeToTempFile(content: String) =
+    val tempFile = Files.createTempFile(FILE_PREFIX, FILE_SUFFIX)
+    tempFile.toFile
+    Files.write(tempFile, content.getBytes)
+
+    tempFile
+
+  private def cleanupOldFiles(): Unit =
+    val tempDir = Paths.get(System.getProperty("java.io.tmpdir"))
+    val files = tempDir.toFile().listFiles()
+    
+    // delete all files that start with the given prefix and end on the suffix
+    // and which are older than 1 minute
+    files.foreach( f =>
+      if (f.getName().startsWith(FILE_PREFIX) && f.getName().endsWith(FILE_SUFFIX)) then
+        val lastModified = f.lastModified()
+        val now = System.currentTimeMillis()
+        val age = now - lastModified
+        if (age > 60000) then
+          f.delete()        
+    )
+    

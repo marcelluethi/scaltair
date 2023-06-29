@@ -105,6 +105,3 @@ case class VegaChart(
 
   def show()(using plotTarget: PlotTarget): Unit =
     plotTarget.show(this)
-    Thread.sleep(
-      1000
-    ) // TODO replace me with a proper wait for the browser to open
