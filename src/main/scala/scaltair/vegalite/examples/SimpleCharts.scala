@@ -16,177 +16,239 @@
  */
 package scaltair.vegalite.examples
 
-import scaltair.vegalite.{VegaChart, VegaView, VegaEncoding}
-import scaltair.vegalite.SingleView
-import scaltair.vegalite.VegaMark
-import scaltair.vegalite.VegaTitle
+import scaltair.vegalite.InlineDataset
+import scaltair.vegalite.URLData
+import scaltair.vegalite.EdEncoding
+import scaltair.vegalite.{XClass, YClass, ColorClass, SizeClass}
+import scaltair.vegalite.Type
+import scaltair.vegalite.ViewBackground
+import scaltair.vegalite.VegaLiteDSL
+import scaltair.PlotTargetBrowser
+import scaltair.vegalite.NonArgAggregateOp
 
-import scaltair.PlotTargetBrowser.given
+//import scaltair.PlotTargetBrowser.given
 
 /** Example charts, which show how to use the vega lite specification directly.
-  * This is useful if you want maximum control over the plot.
   */
 object SimpleCharts {
 
   def barChart(): Unit =
-    val data = Map(
-      "x" -> Seq("A", "B", "C", "D", "E"),
-      "y" -> Seq(5, 3, 6, 7, 2)
-    )
-    val view = SingleView(
-      mark = VegaMark.Bar,
-      encoding = VegaEncoding(channels =
-        Seq(
-          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Nominal),
-          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative)
-        )
+
+    val values: InlineDataset =
+      Seq(
+        Map("x" -> Some("A"), "y" -> Some(5)),
+        Map("x" -> Some("B"), "y" -> Some(3)),
+        Map("x" -> Some("C"), "y" -> Some(6)),
+        Map("x" -> Some("D"), "y" -> Some(7)),
+        Map("x" -> Some("E"), "y" -> Some(2))
       )
+
+    val data = URLData(values = Some(values))
+    val mark = "bar"
+    val encoding = EdEncoding(
+      x = Some(XClass(field = Some("x"), `type` = Some(Type.nominal))),
+      y = Some(YClass(field = Some("y"), `type` = Some(Type.quantitative)))
     )
-    val chart = VegaChart(data, view, VegaTitle("bar"))
-    chart.show()
+
+    val view = ViewBackground()
+
+    val spec = VegaLiteDSL(
+      title = Some("Bar Chart"),
+      width = Some(800.0),
+      height = Some(800.0),
+      data = Some(data),
+      encoding = Some(encoding),
+      mark = Some(mark),
+      view = Some(view)
+    )
+
+    PlotTargetBrowser.show(spec)
 
   def scatterPlot(): Unit =
-    val data = Map(
-      "x" -> Seq(1, 2, 3, 4, 5),
-      "y" -> Seq(5, 3, 6, 7, 2)
-    )
-    val view = SingleView(
-      mark = VegaMark.Point,
-      encoding = VegaEncoding(channels =
-        Seq(
-          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
-          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative)
-        )
-      )
-    )
-    val chart = VegaChart(data, view, VegaTitle("scatter"))
-    chart.show()
 
-  def linePlot(): Unit =
-    val xs = Seq.range(0, 200).map(_ / 10.0)
-    val ys = xs.map(x => math.sin(x) + math.cos(x))
-    val data = Map(
-      "x" -> xs,
-      "y" -> ys
-    )
-    val view = SingleView(
-      mark = VegaMark.Line,
-      encoding = VegaEncoding(channels =
-        Seq(
-          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
-          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative)
-        )
+    val values: InlineDataset =
+      Seq(
+        Map("x" -> Some(1), "y" -> Some(5)),
+        Map("x" -> Some(2), "y" -> Some(3)),
+        Map("x" -> Some(3), "y" -> Some(6)),
+        Map("x" -> Some(4), "y" -> Some(7)),
+        Map("x" -> Some(5), "y" -> Some(2))
       )
+
+    val data = URLData(values = Some(values))
+    val mark = "circle"
+    val encoding = EdEncoding(
+      x = Some(XClass(field = Some("x"), `type` = Some(Type.nominal))),
+      y = Some(YClass(field = Some("y"), `type` = Some(Type.quantitative)))
     )
-    val chart = VegaChart(data, view, VegaTitle("line"))
-    chart.show()
+
+    val view = ViewBackground()
+
+    val spec = VegaLiteDSL(
+      title = Some("Scatterplot"),
+      width = Some(800.0),
+      height = Some(800.0),
+      data = Some(data),
+      encoding = Some(encoding),
+      mark = Some(mark),
+      view = Some(view)
+    )
+
+    PlotTargetBrowser.show(spec)
 
   def lineSeriesPlot(): Unit =
-    val xs = Seq.range(0, 200).map(_ / 10.0)
-    val ys = xs.map(x => math.sin(x) + math.cos(x))
-    val zs = xs.map(x => math.sin(x) - math.cos(x))
 
-    val data = Map(
-      "x" -> (xs ++ xs),
-      "y" -> (ys ++ zs),
-      "series" -> (Seq.fill(xs.length)("sin") ++ Seq.fill(
-        xs.length
-      )("cos"))
-    )
-    val view = SingleView(
-      mark = VegaMark.Line,
-      encoding = VegaEncoding(channels =
-        Seq(
-          VegaEncoding.Channel.X("x", VegaEncoding.FieldType.Quantitative),
-          VegaEncoding.Channel.Y("y", VegaEncoding.FieldType.Quantitative),
-          VegaEncoding.Channel.Color("series", VegaEncoding.FieldType.Nominal)
-        )
+    val values: InlineDataset =
+      Seq(
+        Map("x" -> Some(1), "y" -> Some(5), "series" -> Some("line1")),
+        Map("x" -> Some(2), "y" -> Some(3), "series" -> Some("line1")),
+        Map("x" -> Some(3), "y" -> Some(6), "series" -> Some("line1")),
+        Map("x" -> Some(1), "y" -> Some(10), "series" -> Some("line2")),
+        Map("x" -> Some(2), "y" -> Some(6), "series" -> Some("line2")),
+        Map("x" -> Some(3), "y" -> Some(12), "series" -> Some("line2"))
       )
+    val data = URLData(values = Some(values))
+    val mark = "line"
+    val encoding = EdEncoding(
+      x = Some(XClass(field = Some("x"), `type` = Some(Type.quantitative))),
+      y = Some(YClass(field = Some("y"), `type` = Some(Type.quantitative))),
+      color =
+        Some(ColorClass(field = Some("series"), `type` = Some(Type.nominal)))
     )
-    val chart = VegaChart(data, view, VegaTitle("line"))
-    chart.show()
+
+    val view = ViewBackground()
+
+    val spec = VegaLiteDSL(
+      title = Some("Line series"),
+      width = Some(800.0),
+      height = Some(800.0),
+      data = Some(data),
+      encoding = Some(encoding),
+      mark = Some(mark),
+      view = Some(view)
+    )
+
+    PlotTargetBrowser.show(spec)
 
   def histogram(): Unit =
+
     val xs = Seq.fill(1000)(scala.util.Random.nextGaussian())
 
-    val data = Map(
-      "x" -> xs
-    )
+    val values = xs.map(v => Map("x" -> Some(v)))
+    val data = URLData(values = Some(values))
 
-    val encoding = VegaEncoding(
-      Seq(
-        VegaEncoding.Channel.X(
-          "x",
-          VegaEncoding.FieldType.Quantitative,
-          Seq(
-            VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true))
-          )
-        ),
-        VegaEncoding.Channel.Y(
-          "x",
-          VegaEncoding.FieldType.Quantitative,
-          Seq(
-            VegaEncoding.ChannelProp.Aggregate(VegaEncoding.AggregateType.Count)
-          )
+    val mark = "bar"
+    val encoding = EdEncoding(
+      x = Some(
+        XClass(
+          field = Some("x"),
+          `type` = Some(Type.quantitative),
+          bin = Some(true)
+        )
+      ),
+      y = Some(
+        YClass(
+          field = Some("x"),
+          `type` = Some(Type.quantitative),
+          aggregate = Some(NonArgAggregateOp.count)
         )
       )
     )
 
-    val view = SingleView(
-      mark = VegaMark.Bar,
-      encoding = encoding
+    val spec = VegaLiteDSL(
+      title = Some("Line series"),
+      width = Some(800.0),
+      height = Some(800.0),
+      data = Some(data),
+      encoding = Some(encoding),
+      mark = Some(mark)
     )
 
-    val chart = VegaChart(data, view, VegaTitle("line"))
-    chart.show()
+    PlotTargetBrowser.show(spec)
 
   def bubblePlot(): Unit =
 
-    val xs = Seq.range(-10, 10)
-    val data = Map(
-      "x" -> xs,
-      "y" -> xs,
-      "size" -> Seq.range(0, xs.length),
-      "color" -> xs
-        .map(x => if x < 0 then 1 else 2)
-    )
-
-    val encoding = VegaEncoding(
+    val values: InlineDataset =
       Seq(
-        VegaEncoding.Channel.X(
-          "x",
-          VegaEncoding.FieldType.Quantitative,
-          Seq(
-            VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true))
-          )
+        Map(
+          "x" -> Some(1),
+          "y" -> Some(2),
+          "size" -> Some(1),
+          "color" -> Some(0)
         ),
-        VegaEncoding.Channel.Y(
-          "y",
-          VegaEncoding.FieldType.Quantitative
+        Map(
+          "x" -> Some(2),
+          "y" -> Some(4),
+          "size" -> Some(2),
+          "color" -> Some(0)
         ),
-        VegaEncoding.Channel.Size(
-          "size"
+        Map(
+          "x" -> Some(3),
+          "y" -> Some(8),
+          "size" -> Some(4),
+          "color" -> Some(0)
         ),
-        VegaEncoding.Channel.Color(
-          "size",
-          VegaEncoding.FieldType.Nominal
+        Map(
+          "x" -> Some(4),
+          "y" -> Some(16),
+          "size" -> Some(8),
+          "color" -> Some(0)
+        ),
+        Map(
+          "x" -> Some(5),
+          "y" -> Some(32),
+          "size" -> Some(5),
+          "color" -> Some(1)
+        ),
+        Map(
+          "x" -> Some(6),
+          "y" -> Some(64),
+          "size" -> Some(2),
+          "color" -> Some(1)
+        ),
+        Map(
+          "x" -> Some(7),
+          "y" -> Some(128),
+          "size" -> Some(1),
+          "color" -> Some(1)
+        ),
+        Map(
+          "x" -> Some(8),
+          "y" -> Some(256),
+          "size" -> Some(9),
+          "color" -> Some(1)
         )
       )
+    val data = URLData(values = Some(values))
+
+    val mark = "circle"
+    val encoding = EdEncoding(
+      x = Some(XClass(field = Some("x"), `type` = Some(Type.quantitative))),
+      y = Some(YClass(field = Some("y"), `type` = Some(Type.quantitative))),
+      size =
+        Some(SizeClass(field = Some("size"), `type` = Some(Type.quantitative))),
+      color =
+        Some(ColorClass(field = Some("color"), `type` = Some(Type.nominal)))
     )
 
-    val view = SingleView(
-      mark = VegaMark.Circle,
-      encoding = encoding
+    val view = ViewBackground()
+
+    val spec = VegaLiteDSL(
+      title = Some("Line series"),
+      width = Some(800.0),
+      height = Some(800.0),
+      data = Some(data),
+      encoding = Some(encoding),
+      mark = Some(mark),
+      view = Some(view)
     )
 
-    val chart = VegaChart(data, view, VegaTitle("line"))
-    chart.show()
+    PlotTargetBrowser.show(spec)
 
   @main def runSimpleCharts() =
-    barChart()
-    scatterPlot()
-    linePlot()
-    lineSeriesPlot()
+    // barChart()
+    // scatterPlot()
+    // lineSeriesPlot()
     histogram()
-    bubblePlot()
+    // bubblePlot()
 }

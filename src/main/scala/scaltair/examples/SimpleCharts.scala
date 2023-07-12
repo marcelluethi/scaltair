@@ -23,6 +23,7 @@ import scaltair.Scale
 import scaltair.ChartProperties
 import scaltair.FieldType
 import scaltair.Data
+import scaltair.Axis
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -66,8 +67,8 @@ object SimpleCharts:
 
     Chart(data)
       .encode(
-        Channel.X("x", FieldType.Quantitative).scale(Scale.withRange(0 to 10)),
-        Channel.Y("y", FieldType.Quantitative).scale(Scale.withRange(0 to 10))
+        Channel.X("x", FieldType.Quantitative),
+        Channel.Y("y", FieldType.Quantitative)
       )
       .markLine()
       .properties(ChartProperties(title = "line", titleFontSize = 20))
@@ -87,7 +88,7 @@ object SimpleCharts:
       .encode(
         Channel.X("x", FieldType.Quantitative),
         Channel.Y("y", FieldType.Quantitative),
-        Channel.Color("series", FieldType.Quantitative)
+        Channel.Color("series", FieldType.Nominal)
       )
       .markLine()
       .show()
@@ -150,8 +151,8 @@ object SimpleCharts:
   @main def runSimpleCharts() =
     // barChart()
     // scatterPlot()
-    // linePlot()
-    heatMap()
+    linePlot()
+    // heatMap()
     // lineSeries()
     // histogram()
     // bubblePlot()

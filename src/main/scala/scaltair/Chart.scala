@@ -16,300 +16,97 @@
  */
 package scaltair
 
-import scaltair.vegalite.TitleProp
-import scaltair.vegalite.VegaMark
-import scaltair.vegalite.VegaEncoding
-import scaltair.vegalite.{VegaView}
-import scaltair.vegalite.LayeredView
-
-import scaltair.vegalite.VegaChart
-import scaltair.vegalite.VegaTitle
-import scaltair.vegalite.TitleProp
-
-import scaltair.vegalite.SingleView
-import scaltair.vegalite.HConcatViews
-import scaltair.vegalite.CompositeView
-import scaltair.vegalite.VConcatViews
 import scaltair.PlotTarget
 import scaltair.Data
 import scaltair.Data.ColumnData
 
 import scaltair.PlotTargetBrowser.given
+import scaltair.Channel.X
+import scaltair.Channel.Y
+import scaltair.Channel.Y2
+import scaltair.Channel.Color
+import scaltair.Channel.Size
+import scaltair.vegalite.VegaLiteDSL
+import fansi.Str
 
 case class Chart(
     data: ColumnData
 ):
 
   def encode(channels: Channel*): ChartWithEncoding =
-
-    def fieldTypeToVegaFieldType(fieldType: FieldType): VegaEncoding.FieldType =
-      fieldType match
-        case FieldType.Quantitative => VegaEncoding.FieldType.Quantitative
-        case FieldType.Ordinal      => VegaEncoding.FieldType.Ordinal
-        case FieldType.Nominal      => VegaEncoding.FieldType.Nominal
-        case FieldType.Temporal     => VegaEncoding.FieldType.Temporal
-
-    def binPropsFromBinned(bin: Option[Bin]): Option[VegaEncoding.ChannelProp] =
-      bin match
-        case Some(Bin.Auto) =>
-          Some(
-            VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.AutoBin(true))
-          )
-        case Some(Bin.MaxBins(i)) =>
-          Some(VegaEncoding.ChannelProp.Bin(VegaEncoding.BinConfig.MaxBins(i)))
-        case _ => None
-
-    def scalePropsFromScale(
-        scale: Option[Scale]
-    ): Option[VegaEncoding.ChannelProp] =
-      val scalePropRange =
-        for
-          s <- scale
-          r <- s.range
-        yield VegaEncoding.ChannelProp.Scale(
-          VegaEncoding.ScaleSpec.FromDomain(VegaEncoding.Domain(r.min, r.max))
-        )
-
-      val scalePropIncludeZero =
-        for s <- scale
-        yield VegaEncoding.ChannelProp.Scale(
-          VegaEncoding.ScaleSpec.IncludeZero(s.axisIncludesZero)
-        )
-      if scalePropRange.isDefined then scalePropRange
-      else scalePropIncludeZero
-
-    val vegaChannels = for channel <- channels yield channel match
-      case Channel.X(fieldName, fieldType, binned, scale, axis) =>
-        val axisProp = axis.map(a =>
-          VegaEncoding.ChannelProp.Axis(
-            Seq(
-              VegaEncoding.AxisProp.LabelFontSize(a.labelFontSize),
-              VegaEncoding.AxisProp.TitleFontSize(a.titleFontSize)
-            )
-          )
-        )
-        VegaEncoding.Channel
-          .X(
-            fieldName,
-            fieldTypeToVegaFieldType(fieldType),
-            binPropsFromBinned(binned).toSeq ++ scalePropsFromScale(
-              scale
-            ) ++ axisProp.toSeq
-          )
-      case Channel.Y(fieldName, fieldType, agg, scale, axis) =>
-        val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))
-        val axisProp = axis.map(a =>
-          VegaEncoding.ChannelProp.Axis(
-            Seq(
-              VegaEncoding.AxisProp.LabelFontSize(a.labelFontSize),
-              VegaEncoding.AxisProp.TitleFontSize(a.titleFontSize)
-            )
-          )
-        )
-        VegaEncoding.Channel.Y(
-          fieldName,
-          fieldTypeToVegaFieldType(fieldType),
-          aggProp.toSeq ++ scalePropsFromScale(scale).toSeq ++ axisProp.toSeq
-        )
-
-      case Channel.Y2(fieldName, fieldType, agg, scale, axis) =>
-        val aggProp = agg.map(a => VegaEncoding.ChannelProp.Aggregate(a))
-        val scaleProp = scale.map(s =>
-          VegaEncoding.ChannelProp.Scale(
-            VegaEncoding.ScaleSpec.IncludeZero(s.axisIncludesZero)
-          )
-        )
-        val axisProp = axis.map(a =>
-          VegaEncoding.ChannelProp.Axis(
-            Seq(
-              VegaEncoding.AxisProp.LabelFontSize(a.labelFontSize),
-              VegaEncoding.AxisProp.TitleFontSize(a.titleFontSize)
-            )
-          )
-        )
-        VegaEncoding.Channel.Y2(
-          fieldName,
-          fieldTypeToVegaFieldType(fieldType),
-          aggProp.toSeq ++ scaleProp.toSeq ++ axisProp.toSeq
-        )
-
-      case Channel.Color(fieldName, fieldType: FieldType) =>
-        VegaEncoding.Channel
-          .Color(fieldName, fieldTypeToVegaFieldType(fieldType), Seq.empty)
-      case Channel.Size(fieldName) =>
-        VegaEncoding.Channel.Size(fieldName, Seq.empty)
-    ChartWithEncoding(data, encoding = VegaEncoding(vegaChannels))
+    ChartWithEncoding(data, channels)
 
 case class ChartWithEncoding(
     data: ColumnData,
-    encoding: VegaEncoding = VegaEncoding(Seq.empty)
+    channels: Seq[Channel]
 ):
 
-  def markLine(): ChartWithViews =
-    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Line, encoding))))
-  def markCircle(): ChartWithViews =
-    ChartWithViews(
-      data,
-      LayeredView(Seq(SingleView(VegaMark.Circle, encoding)))
-    )
-  def markRect(): ChartWithViews =
-    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Rect, encoding))))
-  def markPoint(): ChartWithViews =
-    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Point, encoding))))
-  def markBar(): ChartWithViews =
-    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Bar, encoding))))
-  def markArea(): ChartWithViews =
-    ChartWithViews(data, LayeredView(Seq(SingleView(VegaMark.Area, encoding))))
-  def markBoxplot(): ChartWithViews =
-    ChartWithViews(
-      data,
-      LayeredView(Seq(SingleView(VegaMark.Boxplot, encoding)))
-    )
-  def markErrorBand(): ChartWithViews =
-    ChartWithViews(
-      data,
-      LayeredView(Seq(SingleView(VegaMark.ErrorBand, encoding)))
-    )
+  def markLine(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Line, channels))
+  def markCircle(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Circle, channels))
+  def markRect(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Rect, channels))
+  def markPoint(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Point, channels))
+  def markBar(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Bar, channels))
+  def markArea(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Area, channels))
+  def markBoxplot(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.Boxplot, channels))
+  def markErrorBand(): ChartWithSingleView =
+    ChartWithSingleView(data, SingleView(MarkType.ErrorBand, channels))
 
 trait CompleteChart:
-  def data: ColumnData
-  def view: VegaView
+  self =>
 
   def properties(properties: ChartProperties): CompleteChartWithProperties =
     CompleteChartWithProperties(
-      data,
-      view,
+      self,
       properties
     )
 
-  def vegaSpec: VegaChart = VegaChart(data, view)
-  def show()(using plotTarget: PlotTarget): Unit = vegaSpec.show()
+  def spec: VegaLiteDSL =
+    DSLToVegaSpec.createVegeLiteSpec(this)
 
-  def hConcat(other: CompleteChart): ChartWithCompositeView =
-    ChartWithCompositeView(data, HConcatViews(Seq(this.view, other.view)))
+  def show()(using plotTarget: PlotTarget): Unit = plotTarget.show(spec)
 
-  def vConcat(other: CompleteChart): ChartWithCompositeView =
-    ChartWithCompositeView(data, VConcatViews(Seq(this.view, other.view)))
+  def hConcat(other: CompleteChart): HConcatChart =
+    HConcatChart(self, other)
+  def vConcat(other: CompleteChart): VConcatChart =
+    VConcatChart(self, other)
 
 case class CompleteChartWithProperties(
-    data: ColumnData,
-    view: VegaView,
+    chart: CompleteChart,
     properties: ChartProperties
+) extends CompleteChart
+
+case class ChartWithSingleView(
+    data: ColumnData,
+    view: SingleView
 ) extends CompleteChart:
 
-  override def vegaSpec: VegaChart = VegaChart(
-    data,
-    view,
-    VegaTitle(
-      properties.title,
-      Seq(TitleProp.FontSize(properties.titleFontSize))
-    ),
-    properties.width,
-    properties.height
-  )
+  def overlay(other: ChartWithSingleView): ChartWithLayeredView =
+    ChartWithLayeredView(data, LayeredView(Seq(view, other.view)))
 
-case class ChartWithViews(
+case class ChartWithLayeredView(
     data: ColumnData,
     view: LayeredView
 ) extends CompleteChart:
 
-  def overlay(other: ChartWithViews): ChartWithViews =
-    require(other.data == data, "Data must be the same")
-    ChartWithViews(data, LayeredView(this.view.views ++ other.view.views))
+  def overlay(other: ChartWithSingleView): ChartWithLayeredView =
+    ChartWithLayeredView(data, LayeredView(view.views :+ other.view))
 
-case class ChartWithCompositeView(
-    data: ColumnData,
-    view: CompositeView
+case class HConcatChart(
+    leftChart: CompleteChart,
+    rightChart: CompleteChart
 ) extends CompleteChart
 
-sealed trait Channel(
-    fieldName: String,
-    fieldType: FieldType
-)
-
-object Channel:
-  case class X(
-      fieldName: String,
-      fieldType: FieldType,
-      bins: Option[Bin] = None,
-      scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
-      axis: Option[Axis] = None
-  ) extends Channel(fieldName, fieldType):
-
-    def scale(scale: Scale): Channel.X =
-      Channel.X(fieldName, fieldType, bins, Some(scale), axis)
-
-    def axis(axis: Axis): Channel.X =
-      Channel.X(fieldName, fieldType, bins, scale, Some(axis))
-
-    def binned(): Channel.X =
-      Channel.X(fieldName, fieldType, Some(Bin.Auto), scale, axis)
-
-    def binned(maxBins: Int): Channel.X =
-      Channel.X(fieldName, fieldType, Some(Bin.MaxBins(maxBins)), scale, axis)
-
-  case class Y(
-      fieldName: String,
-      fieldType: FieldType,
-      agg: Option[VegaEncoding.AggregateType] = None,
-      scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
-      axis: Option[Axis] = None
-  ) extends Channel(fieldName, fieldType):
-
-    def count(): Channel =
-      Channel.Y(
-        fieldName,
-        fieldType,
-        Some(VegaEncoding.AggregateType.Count),
-        scale
-      )
-
-    def scale(scale: Scale): Channel.Y =
-      Channel.Y(fieldName, fieldType, agg, Some(scale))
-
-    def axis(axis: Axis): Channel.Y =
-      Channel.Y(fieldName, fieldType, agg, scale, Some(axis))
-
-  case class Y2(
-      fieldName: String,
-      fieldType: FieldType,
-      agg: Option[VegaEncoding.AggregateType] = None,
-      scale: Option[Scale] = Some(Scale(axisIncludesZero = false)),
-      axis: Option[Axis] = None
-  ) extends Channel(fieldName, fieldType):
-
-    def count(): Channel =
-      Channel.Y2(
-        fieldName,
-        fieldType,
-        Some(VegaEncoding.AggregateType.Count),
-        scale
-      )
-
-    def scale(scale: Scale): Channel.Y2 =
-      Channel.Y2(fieldName, fieldType, agg, Some(scale), axis)
-
-    def axis(axis: Axis): Channel.Y2 =
-      Channel.Y2(fieldName, fieldType, agg, scale, Some(axis))
-
-  case class Color(fieldName: String, fieldType: FieldType)
-      extends Channel(fieldName, fieldType)
-  case class Size(fieldName: String)
-      extends Channel(fieldName, FieldType.Quantitative)
-
-case class Scale(
-    axisIncludesZero: Boolean = false,
-    range: Option[Range] = None
-):
-  def range(range: Range): Scale = this.copy(range = Some(range))
-  def axisIncludesZero(axisIncludesZero: Boolean): Scale =
-    this.copy(axisIncludesZero = axisIncludesZero)
-
-object Scale:
-  def withRange(range: Range): Scale = Scale(range = Some(range))
-  def includesZero: Scale = Scale(axisIncludesZero = true)
-
-case class Axis(labelFontSize: Int = 14, titleFontSize: Int = 14)
+case class VConcatChart(
+    upperChart: CompleteChart,
+    lowerChart: CompleteChart
+) extends CompleteChart
 
 case class ChartProperties(
     title: String = "",
@@ -317,10 +114,3 @@ case class ChartProperties(
     width: Int = 600,
     height: Int = 600
 )
-
-enum Bin:
-  case Auto extends Bin
-  case MaxBins(maxBins: Int) extends Bin
-
-enum FieldType:
-  case Quantitative, Nominal, Ordinal, Temporal

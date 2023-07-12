@@ -20,14 +20,17 @@ import java.awt.Desktop
 import java.nio.file.Paths
 import java.nio.file.Files
 import java.net.URI
-import scaltair.vegalite.VegaChart
 import scaltair.json.JsonObject
 import scaltair.json.Json
 import scala.util.Success
 import scala.util.Try
+import scaltair.vegalite.VegaLiteDSL
+import scaltair.vegalite.toJson
+import scaltair.json.JsonValue
 
 trait PlotTarget:
-  def show(chart: VegaChart): Unit
+  // def show(chart: VegaChart): Unit
+  def show(spec: VegaLiteDSL): Unit
 
 object PlotTargetBrowser extends PlotTarget:
 
@@ -36,14 +39,13 @@ object PlotTargetBrowser extends PlotTarget:
   private final val FILE_PREFIX = "scalismo-plot-"
   private final val FILE_SUFFIX = ".html"
 
-  def show(chart: VegaChart): Unit =
-    val spec = chart.spec
+  def show(spec: VegaLiteDSL): Unit =
 
     // We write the spec to the file system and open it in the browser.
     // To avoid cluttering the file system, we clean up all files in the
     // temporary directory we might have written in previous runs.
     cleanupOldFiles()
-    val tmpURI = writeSpecToFile(spec)
+    val tmpURI = writeSpecToFile(spec.toJson())
 
     if (
       Desktop.isDesktopSupported() && Desktop
@@ -60,7 +62,7 @@ object PlotTargetBrowser extends PlotTarget:
             "Could not open browser. Please open the following file manually: " + tmpURI
           )
 
-  private def writeSpecToFile(spec: JsonObject): URI =
+  private def writeSpecToFile(spec: JsonValue): URI =
 
     val renderedSpec = Json.stringify(spec)
     val theHtml = raw"""<!DOCTYPE html>
@@ -115,9 +117,11 @@ object PlotTargetBrowser extends PlotTarget:
     // delete all files that start with the given prefix and end on the suffix
     // and which are older than 1 minute
     files.foreach(f =>
-      if (f
+      if (
+        f
           .getName()
-          .startsWith(FILE_PREFIX) && f.getName().endsWith(FILE_SUFFIX))
+          .startsWith(FILE_PREFIX) && f.getName().endsWith(FILE_SUFFIX)
+      )
       then
         val lastModified = f.lastModified()
         val now = System.currentTimeMillis()

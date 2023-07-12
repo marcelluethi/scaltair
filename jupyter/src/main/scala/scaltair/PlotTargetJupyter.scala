@@ -19,15 +19,15 @@ package scaltair
 import almond.api.JupyterApi
 import almond.interpreter.api.DisplayData
 import almond.api.JupyterAPIHolder.value
-import scaltair.vegalite.VegaChart
 import scaltair.json.Json
+import scaltair.vegalite.VegaLiteDSL
 
 object PlotTargetJupyter extends PlotTarget:
 
   given plotTargetJupyter: PlotTarget = PlotTargetJupyter
 
 
-  def show(chart: VegaChart): Unit =
+  def show(chart: VegaLiteDSL): Unit =
 
     // This code was taken from  https://github.com/Quafadas/dedav4s/tree/main/core/jvm/src/main/scala/viz
     val kernel = summon[JupyterApi]
