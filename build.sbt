@@ -1,5 +1,5 @@
 ThisBuild / organization := "ch.unibas.cs.gravis"
-ThisBuild / version := "0.1-SNAPSHOT"
+ThisBuild / version := "0.2-SNAPSHOT"
 ThisBuild / scalaVersion := "3.3.0"
 
 ThisBuild / homepage := Some(url("https://github.com/marcelluethi/scaltair"))
