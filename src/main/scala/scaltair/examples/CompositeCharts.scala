@@ -20,7 +20,6 @@ import scaltair.Chart
 import scaltair.ChartProperties
 import scaltair.Channel
 import scaltair.Scale
-import scaltair.ChartWithSingleView
 import scaltair.FieldType
 
 import scaltair.PlotTargetBrowser.given

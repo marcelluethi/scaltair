@@ -11,6 +11,8 @@ object DSLToVegaSpec:
   final val DEFAULT_WIDTH = 600
   final val DEFAULT_HEIGHT = 400
 
+  import Chart.*
+  
   def createVegeLiteSpec(chart: CompleteChart): VegaLiteDSL =
     chart match
       case ChartWithSingleView(data, view) =>

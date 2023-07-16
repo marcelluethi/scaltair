@@ -21,92 +21,105 @@ import scaltair.Data
 import scaltair.Data.ColumnData
 
 import scaltair.PlotTargetBrowser.given
-import scaltair.Channel.X
-import scaltair.Channel.Y
-import scaltair.Channel.Y2
-import scaltair.Channel.Color
-import scaltair.Channel.Size
+import scaltair.Channel.*
 import scaltair.vegalite.VegaLiteDSL
-import fansi.Str
 
-case class Chart(
-    data: ColumnData
-):
 
-  def encode(channels: Channel*): ChartWithEncoding =
-    ChartWithEncoding(data, channels)
+/**
+ * Main interface to create charts.
+ * A chart using the following steps:
+  * 1. Calling the `Chart` object to create a chart with a given data set.
+  * 2. Calling the `encode` method to specify the channels for the chart.
+  * 3. Calling the `markXXX` method to specify the mark type for the chart.
+  *    In this step, we can optionally call `overlay` to add layers, and `hconcat` and `vconcat` 
+  * to create composite charts. 
+  * 4. Finally, calling the `properties` method to specify the properties of the chart.
+  */
+object Chart:
 
-case class ChartWithEncoding(
-    data: ColumnData,
-    channels: Seq[Channel]
-):
+  /**
+    * Create a chart with the given data set.
+    */
+  def apply(data : ColumnData) : ChartData = ChartData(data)
 
-  def markLine(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Line, channels))
-  def markCircle(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Circle, channels))
-  def markRect(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Rect, channels))
-  def markPoint(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Point, channels))
-  def markBar(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Bar, channels))
-  def markArea(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Area, channels))
-  def markBoxplot(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.Boxplot, channels))
-  def markErrorBand(): ChartWithSingleView =
-    ChartWithSingleView(data, SingleView(MarkType.ErrorBand, channels))
+  case class ChartData(
+      data: ColumnData
+  ):
 
-trait CompleteChart:
-  self =>
+    def encode(channels: Channel*): ChartWithEncoding =
+      ChartWithEncoding(data, channels)
 
-  def properties(properties: ChartProperties): CompleteChartWithProperties =
-    CompleteChartWithProperties(
-      self,
-      properties
-    )
+  case class ChartWithEncoding(
+      data: ColumnData,
+      channels: Seq[Channel]
+  ):
 
-  def spec: VegaLiteDSL =
-    DSLToVegaSpec.createVegeLiteSpec(this)
+    def markLine(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Line, channels))
+    def markCircle(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Circle, channels))
+    def markRect(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Rect, channels))
+    def markPoint(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Point, channels))
+    def markBar(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Bar, channels))
+    def markArea(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Area, channels))
+    def markBoxplot(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.Boxplot, channels))
+    def markErrorBand(): ChartWithSingleView =
+      ChartWithSingleView(data, SingleView(MarkType.ErrorBand, channels))
 
-  def show()(using plotTarget: PlotTarget): Unit = plotTarget.show(spec)
+  trait CompleteChart:
+    self : CompleteChart =>
 
-  def hConcat(other: CompleteChart): HConcatChart =
-    HConcatChart(self, other)
-  def vConcat(other: CompleteChart): VConcatChart =
-    VConcatChart(self, other)
+    def properties(properties: ChartProperties): CompleteChartWithProperties =
+      CompleteChartWithProperties(
+        self,
+        properties
+      )
 
-case class CompleteChartWithProperties(
-    chart: CompleteChart,
-    properties: ChartProperties
-) extends CompleteChart
+    def spec: VegaLiteDSL =
+      DSLToVegaSpec.createVegeLiteSpec(self)
 
-case class ChartWithSingleView(
-    data: ColumnData,
-    view: SingleView
-) extends CompleteChart:
+    def show()(using plotTarget: PlotTarget): Unit = plotTarget.show(spec)
 
-  def overlay(other: ChartWithSingleView): ChartWithLayeredView =
-    ChartWithLayeredView(data, LayeredView(Seq(view, other.view)))
+    def hConcat(other: CompleteChart): HConcatChart =
+      HConcatChart(self, other)
+    def vConcat(other: CompleteChart): VConcatChart =
+      VConcatChart(self, other)
 
-case class ChartWithLayeredView(
-    data: ColumnData,
-    view: LayeredView
-) extends CompleteChart:
+  case class CompleteChartWithProperties(
+      chart: CompleteChart,
+      properties: ChartProperties
+  ) extends CompleteChart
 
-  def overlay(other: ChartWithSingleView): ChartWithLayeredView =
-    ChartWithLayeredView(data, LayeredView(view.views :+ other.view))
+  case class ChartWithSingleView(
+      data: ColumnData,
+      view: SingleView
+  ) extends CompleteChart:
 
-case class HConcatChart(
-    leftChart: CompleteChart,
-    rightChart: CompleteChart
-) extends CompleteChart
+    def overlay(other: ChartWithSingleView): ChartWithLayeredView =
+      ChartWithLayeredView(data, LayeredView(Seq(view, other.view)))
 
-case class VConcatChart(
-    upperChart: CompleteChart,
-    lowerChart: CompleteChart
-) extends CompleteChart
+  case class ChartWithLayeredView(
+      data: ColumnData,
+      view: LayeredView
+  ) extends CompleteChart:
+
+    def overlay(other: ChartWithSingleView): ChartWithLayeredView =
+      ChartWithLayeredView(data, LayeredView(view.views :+ other.view))
+
+  case class HConcatChart(
+      leftChart: CompleteChart,
+      rightChart: CompleteChart
+  ) extends CompleteChart
+
+  case class VConcatChart(
+      upperChart: CompleteChart,
+      lowerChart: CompleteChart
+  ) extends CompleteChart
 
 case class ChartProperties(
     title: String = "",
