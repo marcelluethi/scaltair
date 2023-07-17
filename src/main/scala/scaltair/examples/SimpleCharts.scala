@@ -24,6 +24,10 @@ import scaltair.ChartProperties
 import scaltair.FieldType
 import scaltair.Data
 import scaltair.Axis
+import scaltair.Domain
+import scaltair.Mark
+import scaltair.ScaleType
+import scaltair.BinProperties
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -40,7 +44,7 @@ object SimpleCharts:
         Channel.X("x", FieldType.Nominal),
         Channel.Y("y", FieldType.Quantitative)
       )
-      .markBar()
+      .mark(Mark.Bar())
       .show()
 
   def scatterPlot(): Unit =
@@ -54,7 +58,7 @@ object SimpleCharts:
         Channel.X("x", FieldType.Quantitative),
         Channel.Y("y", FieldType.Quantitative)
       )
-      .markPoint()
+      .mark(Mark.Point())
       .show()
 
   def linePlot(): Unit =
@@ -70,7 +74,7 @@ object SimpleCharts:
         Channel.X("x", FieldType.Quantitative),
         Channel.Y("y", FieldType.Quantitative)
       )
-      .markLine()
+      .mark(Mark.Line())
       .properties(ChartProperties(title = "line", titleFontSize = 20))
       .show()
 
@@ -90,7 +94,7 @@ object SimpleCharts:
         Channel.Y("y", FieldType.Quantitative),
         Channel.Color("series", FieldType.Nominal)
       )
-      .markLine()
+      .mark(Mark.Line())
       .show()
 
   def histogram(): Unit =
@@ -102,10 +106,12 @@ object SimpleCharts:
 
     Chart(data)
       .encode(
-        Channel.X("x", FieldType.Quantitative).binned(),
+        Channel
+          .X("x", FieldType.Quantitative)
+          .binned(BinProperties().maxbins(20)),
         Channel.Y("x", FieldType.Quantitative).count()
       )
-      .markBar()
+      .mark(Mark.Bar())
       .show()
 
   def bubblePlot(): Unit =
@@ -126,7 +132,7 @@ object SimpleCharts:
         Channel.Size("size"),
         Channel.Color("color", FieldType.Nominal)
       )
-      .markCircle()
+      .mark(Mark.Circle())
       .show()
 
   def heatMap(): Unit =
@@ -145,14 +151,37 @@ object SimpleCharts:
         Channel.Y("y", FieldType.Ordinal),
         Channel.Color("z", FieldType.Quantitative)
       )
-      .markRect()
+      .mark(Mark.Rect())
+      .show()
+
+  def chartWithLogScaleAndAxisProperties(): Unit =
+    val xs = Seq.range(0, 200).map(_ / 10.0)
+    val ys = xs.map(x => math.exp(x))
+    val data = Map(
+      "x" -> xs,
+      "y" -> ys
+    )
+
+    Chart(data)
+      .encode(
+        Channel
+          .X("x", FieldType.Quantitative)
+          .scale(Scale().domain(Domain(10, 20))),
+        Channel
+          .Y("y", FieldType.Quantitative)
+          .scale(Scale().scaleType(ScaleType.Logarithmic))
+          .axis(Axis().labelFontSize(20))
+      )
+      .mark(Mark.Line())
+      .clip(true)
       .show()
 
   @main def runSimpleCharts() =
     // barChart()
     // scatterPlot()
-    linePlot()
+    // linePlot()
     // heatMap()
     // lineSeries()
     // histogram()
     // bubblePlot()
+    chartWithLogScaleAndAxisProperties()

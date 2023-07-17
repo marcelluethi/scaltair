@@ -29,6 +29,9 @@ case class JsonNumber(value: Double) extends JsonValue
 case class JsonBool(value: Boolean) extends JsonValue
 
 object Json {
+
+  /** Convert a json Value to its string representation.
+    */
   def stringify(value: JsonValue): String = {
     value match {
       case JsonObject(fields) => {

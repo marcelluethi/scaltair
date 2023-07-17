@@ -15,7 +15,7 @@ import scaltair.*
 import scaltair.PlotTargetBrowser.given
 import scaltair.vegalite.datasets.VegaDatasets
 
-@main def examplePlot() = 
+@main def examplePlot() =
   val data = VegaDatasets.loadCars().get
   val plot = Chart(data)
     .encode(
@@ -23,7 +23,7 @@ import scaltair.vegalite.datasets.VegaDatasets
       Channel.Y("Miles_per_Gallon", FieldType.Quantitative),
       Channel.Color("Origin", FieldType.Nominal)
     )
-    .markCircle()
+    .mark(Mark.Circle())
     .show()
 ```
 
@@ -50,20 +50,26 @@ on sonatype. To try it out, add the following dependency to your `build.sbt`:
 
 ```
 resolvers +=  Resolver.sonatypeRepo("snapshots"), 
-libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair" % "0.1-SNAPSHOT"
+libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair" % "0.2-SNAPSHOT"
 ```
 
 If you want to use the jupyter-notebook integration, you also need to add the following dependency:
 
 ```
-libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair-jupyter" % "0.1-SNAPSHOT"
+libraryDependencies += "ch.unibas.cs.gravis" %% "scaltair-jupyter" % "0.2-SNAPSHOT"
 ```
 
 ##### Adding new features to Scaltair
 
+Scaltair consists of three main parts, which need to be extended to add new features:
 
-Adding new features consists of two simple steps:
+1. The dsl for creating plots, which is defined in the scaltair package. 
+2. The converter, which converts the dsl to a vega-lite specification. It is defined 
+in the file `scaltair/DSLToVegaSpec.scala`.
+3. The json encoder, which converts the vega-lite specification to json. It is defined
+in the file `scaltair/VegaLiteSpecJsonEncoder.scala`.
 
-1. Add a case class in the package `scaltair.vegalite` representing the corresponding Vega construct and define how it is mapped to json. 
-2. Expose the functionality in the high-level dsl defined in `scaltair.Chart`. 
-
+To add a new feature, you need to extend all three parts. First, expose the new functionality 
+in the DSL. Then add a new case to the converter, which converts the new dsl element to the 
+vega lite specification. Finally, add a new case to the json encoder, to make sure that the 
+field is correctly encoded to json.

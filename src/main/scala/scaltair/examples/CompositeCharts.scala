@@ -23,6 +23,7 @@ import scaltair.Scale
 import scaltair.FieldType
 
 import scaltair.PlotTargetBrowser.given
+import scaltair.Mark
 
 object CompositeCharts:
 
@@ -40,7 +41,7 @@ object CompositeCharts:
         Channel.X("shoe-size", FieldType.Ordinal),
         Channel.Y("stature", FieldType.Quantitative)
       )
-      .markLine()
+      .mark(Mark.Line())
 
     val view2 = Chart(data)
       .encode(
@@ -48,7 +49,7 @@ object CompositeCharts:
         Channel.Y("stature", FieldType.Quantitative),
         Channel.Color("sex", FieldType.Nominal)
       )
-      .markBar()
+      .mark(Mark.Bar())
 
     view1.overlay(view2).show()
 
@@ -59,14 +60,14 @@ object CompositeCharts:
         Channel.X("shoe-size", FieldType.Ordinal),
         Channel.Y("stature", FieldType.Quantitative)
       )
-      .markLine()
+      .mark(Mark.Line())
 
     val view2 = Chart(data)
       .encode(
         Channel.X("shoe-size", FieldType.Ordinal),
         Channel.Y("weight", FieldType.Quantitative)
       )
-      .markLine()
+      .mark(Mark.Line())
 
     view1
       .hConcat(view2)

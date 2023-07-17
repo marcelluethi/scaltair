@@ -3,11 +3,8 @@
 To run the code in this tutorial, we need the following imports 
 
 ```scala mdoc:silent
-import scaltair.{Chart, Data}
-import scaltair.FieldType
-import scaltair.Channel
+import scaltair.*
 import scaltair.PlotTargetBrowser.given
-import scaltair.ChartProperties
 ```
 
 ## Preparing the plot data
@@ -48,7 +45,7 @@ Chart(data)
         Channel.X("x", FieldType.Quantitative), 
         Channel.Y("y", FieldType.Quantitative)
     )
-    .markLine()
+    .mark(Mark.Line())
     .properties(
         ChartProperties(
             title="linechart",
@@ -99,7 +96,7 @@ in the following example:
         Channel.X("shoe-size", FieldType.Ordinal),
         Channel.Y("stature", FieldType.Quantitative)
       )
-      .markLine()
+      .mark(Mark.Line())
 
     val view2 = Chart(data2)
       .encode(
@@ -107,7 +104,7 @@ in the following example:
         Channel.Y("stature", FieldType.Quantitative),
         Channel.Color("sex", FieldType.Nominal)
       )
-      .markBar()
+      .mark(Mark.Bar())
 
     view1.overlay(view2).show()
     view1.hConcat(view2).show()

@@ -12,7 +12,7 @@ object DSLToVegaSpec:
   final val DEFAULT_HEIGHT = 400
 
   import Chart.*
-  
+
   def createVegeLiteSpec(chart: CompleteChart): VegaLiteDSL =
     chart match
       case ChartWithSingleView(data, view) =>
@@ -20,7 +20,7 @@ object DSLToVegaSpec:
         VegaLiteDSL(
           data = Some(columnDataToVegaLiteData(data)),
           encoding = Some(encoding),
-          mark = Some(markTypeToVegaMark(view.mark)),
+          mark = Some(markToVegaMark(view.mark, view.clip, view.opacity)),
           width = Some(DEFAULT_WIDTH),
           height = Some(DEFAULT_HEIGHT)
         )
@@ -36,7 +36,8 @@ object DSLToVegaSpec:
                     encoding = Some(
                       edEncodingToLayerEncoding(createEncoding(view.channels))
                     ),
-                    mark = Some(markTypeToVegaMark(view.mark))
+                    mark =
+                      Some(markToVegaMark(view.mark, view.clip, view.opacity))
                   )
               )
           ),
@@ -77,7 +78,7 @@ object DSLToVegaSpec:
 
     channels.foldLeft(vegalite.EdEncoding())((encoding, channel) =>
       channel match
-        case X(fieldName, fieldType, bins, scale, axis) =>
+        case XChannel(fieldName, fieldType, bins, scale, axis) =>
           EdEncoding(
             x = Some(
               vegalite.XClass(
@@ -89,7 +90,7 @@ object DSLToVegaSpec:
               )
             )
           )
-        case Y(fieldName, fieldType, aggregateType, scale, axis) =>
+        case YChannel(fieldName, fieldType, aggregateType, scale, axis) =>
           encoding.copy(y =
             Some(
               vegalite.YClass(
@@ -101,7 +102,7 @@ object DSLToVegaSpec:
               )
             )
           )
-        case Y2(fieldName, fieldType, aggregateType) =>
+        case Y2Channel(fieldName, fieldType, aggregateType) =>
           encoding.copy(y2 =
             Some(
               vegalite.Y2Class(
@@ -111,7 +112,7 @@ object DSLToVegaSpec:
               )
             )
           )
-        case Color(fieldName, fieldType) =>
+        case ColorChannel(fieldName, fieldType) =>
           encoding.copy(color =
             Some(
               vegalite.ColorClass(
@@ -120,7 +121,7 @@ object DSLToVegaSpec:
               )
             )
           )
-        case Size(fieldName) =>
+        case SizeChannel(fieldName) =>
           encoding.copy(size =
             Some(
               vegalite.SizeClass(
@@ -179,24 +180,63 @@ object DSLToVegaSpec:
       case FieldType.Nominal      => vegalite.Type.nominal
       case FieldType.Temporal     => vegalite.Type.temporal
 
-  private def markTypeToVegaMark(markType: MarkType): String =
-    markType match
-      case MarkType.Line      => "line"
-      case MarkType.Circle    => "circle"
-      case MarkType.Rect      => "rect"
-      case MarkType.Point     => "point"
-      case MarkType.Bar       => "bar"
-      case MarkType.Area      => "area"
-      case MarkType.Boxplot   => "boxplot"
-      case MarkType.ErrorBand => "errorband"
+  private def markToVegaMark(
+      mark: Mark,
+      clipMark: Boolean,
+      opacity: Double
+  ): vegalite.Def =
+    mark match
+      case Mark(MarkType.Line, clipMark, opacity) =>
+        vegalite.Def(
+          `type` = "line",
+          clip = Some(clipMark),
+          opacity = Some(opacity)
+        )
+      case Mark(MarkType.Circle, clipMark, opacity) =>
+        vegalite.Def(
+          `type` = "circle",
+          clip = Some(clipMark),
+          opacity = Some(opacity)
+        )
+      case Mark(MarkType.Rect, clipMark, opacity) =>
+        vegalite.Def(
+          `type` = "rect",
+          clip = Some(clipMark),
+          opacity = Some(opacity)
+        )
+      case Mark(MarkType.Point, clipMark, opacity) =>
+        vegalite.Def(
+          `type` = "point",
+          clip = Some(clipMark),
+          opacity = Some(opacity)
+        )
+      case Mark(MarkType.Bar, clipMark, opacity) =>
+        vegalite.Def(
+          `type` = "bar",
+          clip = Some(clipMark),
+          opacity = Some(opacity)
+        )
+      case Mark(MarkType.Area, clipMark, opacity) =>
+        vegalite.Def(
+          `type` = "area",
+          clip = Some(clipMark),
+          opacity = Some(opacity)
+        )
+      case Mark(MarkType.Boxplot, clipMark, opacity) =>
+        vegalite.Def(`type` = "boxplot", clip = Some(clipMark))
+      case Mark(MarkType.Errorband, clipMark, opacity) =>
+        vegalite.Def(`type` = "errorband", clip = Some(clipMark))
 
   private def binToVegalinBin(
       bin: Option[Bin]
   ): Option[vegalite.BinParams] | Option[Boolean] =
     bin match
-      case Some(Bin.Auto)       => Some(true)
-      case Some(Bin.MaxBins(n)) => Some(vegalite.BinParams(maxbins = Some(n)))
-      case None                 => None
+      case Some(Bin.Auto) => Some(true)
+      case Some(Bin.CustomBinning(properties)) =>
+        properties.maxbins.map(numBins =>
+          vegalite.BinParams(maxbins = Some(numBins))
+        )
+      case None => None
 
   private def aggregateToVegaliteAggregate(
       aggregate: Option[AggregateType]
@@ -212,16 +252,30 @@ object DSLToVegaSpec:
       scale: Option[Scale]
   ): Option[vegalite.Scale] =
     scale match
-      case Some(includeZero, None) =>
-        Some(vegalite.Scale(zero = Some(includeZero)))
-      case Some(_, Some(range)) =>
-        Some(
-          vegalite.Scale(
-            domainMin = Some(range.start),
-            domainMax = Some(range.end)
-          )
-        )
+      case Some(Scale(includeZero, scaleTypeOpt, domainOpt)) =>
+        val vlScaleWithZero = vegalite.Scale(zero = Some(includeZero))
+        val vlScaleWithScaleType = scaleTypeOpt match
+          case Some(scaleType) =>
+            vlScaleWithZero.copy(`type` =
+              Some(scaleTypeToVegaliteScaleType((scaleType)))
+            )
+          case None => vlScaleWithZero
+        val vlScaleWithScaleTypeAndDomain = domainOpt match
+          case Some(domain) =>
+            vlScaleWithScaleType.copy(
+              domainMin = Some(domain.min),
+              domainMax = Some(domain.max)
+            )
+          case None => vlScaleWithScaleType
+        Some(vlScaleWithScaleTypeAndDomain)
       case None => None
+
+  private def scaleTypeToVegaliteScaleType(
+      scaleType: ScaleType
+  ): vegalite.ScaleType =
+    scaleType match
+      case ScaleType.Logarithmic => vegalite.ScaleType.log
+      case ScaleType.Linear      => vegalite.ScaleType.linear
 
   private def axisToVegaliteAxis(axis: Option[Axis]): Option[vegalite.Axis] =
     axis match

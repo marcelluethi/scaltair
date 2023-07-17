@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package scaltair.vegalite
 
 /** This file contains encodings for the different parts of the vega lite
@@ -141,16 +157,17 @@ extension (y: YClass)
     val aggregateOpt =
       y.aggregate.map(aggregate => "aggregate" -> aggregate.toJson())
     val binOpt = y.bin.map(bin => "bin" -> bin.toJson())
+    val scaleOpt = y.scale.map(scale => "scale" -> scale.toJson())
+    val axisOpt = y.axis.map(axis => "axis" -> axis.toJson())
 
     JsonObject(
-      fieldOpt.toSeq ++ typeOpt.toSeq ++ aggregateOpt.toSeq ++ binOpt.toSeq
+      fieldOpt.toSeq ++ typeOpt.toSeq ++ aggregateOpt.toSeq ++ binOpt.toSeq ++ scaleOpt.toSeq ++ axisOpt.toSeq
     )
 
 extension (y2: Y2Class)
   def toJson(): JsonValue =
     val fieldOpt = y2.field.map(field => "field" -> field.toJson())
     val typeOpt = y2.`type`.map(`type` => "type" -> `type`.toJson())
-
     JsonObject(fieldOpt.toSeq ++ typeOpt.toSeq)
 
 extension (color: ColorClass)
@@ -176,11 +193,18 @@ extension (`type`: Type)
 extension (scale: Scale)
   def toJson(): JsonValue =
     val zeroOpt = scale.zero.map(zero => "zero" -> zero.toJson())
+    val scaleTypeOpt = scale.`type`.map(`type` => "type" -> `type`.toJson())
     val domainMinOpt =
       scale.domainMin.map(domainMin => "domainMin" -> domainMin.toJson())
     val domainMaxOpt =
       scale.domainMax.map(domainMax => "domainMax" -> domainMax.toJson())
-    JsonObject(zeroOpt.toSeq ++ domainMinOpt.toSeq ++ domainMaxOpt.toSeq)
+    JsonObject(
+      zeroOpt.toSeq ++ domainMinOpt.toSeq ++ domainMaxOpt.toSeq ++ scaleTypeOpt
+    )
+
+extension (scaleType: ScaleType)
+  def toJson(): JsonValue =
+    JsonString(scaleType.toString())
 
 extension (aria: Aria)
   def toJson(): JsonValue =
@@ -243,7 +267,17 @@ extension (gridWithUnion: GridWidthUnion)
 extension (mark: AnyMark)
   @targetName("toJsonAnyMark")
   def toJson(): JsonValue =
-    JsonString(mark.toString())
+    mark match
+      case mark: String => JsonString(mark)
+      case mark: Def    => mark.toJson()
+
+extension (mark: Def)
+  @targetName("toJsonMarkDef")
+  def toJson(): JsonValue =
+    val typeStr = "type" -> JsonString(mark.`type`)
+    val clipOpt = mark.clip.map(clipMark => "clip" -> JsonBool(clipMark))
+    val opacityOpt = mark.opacity.map(opacity => "opacity" -> opacity.toJson())
+    JsonObject(typeStr +: (clipOpt.toSeq ++ opacityOpt.toSeq))
 
 ///////////////////////////
 // Data
