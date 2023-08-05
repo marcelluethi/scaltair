@@ -176,6 +176,21 @@ object SimpleCharts:
       .clip(true)
       .show()
 
+  def textChart(): Unit =
+    val data = Map(
+      "x" -> Seq(1, 2, 3, 4, 5),
+      "y" -> Seq(5, 3, 6, 7, 2),
+      "text" -> Seq("A", "B", "C", "D", "E")
+    )
+    Chart(data)
+      .encode(
+        Channel.X("x", FieldType.Quantitative),
+        Channel.Y("y", FieldType.Quantitative),
+        Channel.Text("text")
+      )
+      .mark(Mark.Text())
+      .show()
+
   @main def runSimpleCharts() =
     // barChart()
     // scatterPlot()
@@ -184,4 +199,5 @@ object SimpleCharts:
     // lineSeries()
     // histogram()
     // bubblePlot()
-    chartWithLogScaleAndAxisProperties()
+    // chartWithLogScaleAndAxisProperties()
+    textChart()

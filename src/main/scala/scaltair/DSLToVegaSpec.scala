@@ -129,6 +129,14 @@ object DSLToVegaSpec:
               )
             )
           )
+        case TextChannel(fieldName) =>
+          encoding.copy(text =
+            Some(
+              vegalite.TextDef(
+                field = Some(fieldName)
+              )
+            )
+          )
     )
 
   // the VegaLiteDSL contains almost the same fields as the vegalite.Spec. To avoid
@@ -157,7 +165,8 @@ object DSLToVegaSpec:
       y = encoding.y,
       y2 = encoding.y2,
       color = encoding.color,
-      size = encoding.size
+      size = encoding.size,
+      text = encoding.text
     )
 
   private def columnDataToVegaLiteData(data: ColumnData): vegalite.URLData =
@@ -226,6 +235,8 @@ object DSLToVegaSpec:
         vegalite.Def(`type` = "boxplot", clip = Some(clipMark))
       case Mark(MarkType.Errorband, clipMark, opacity) =>
         vegalite.Def(`type` = "errorband", clip = Some(clipMark))
+      case Mark(MarkType.Text, clipMark, opacity) =>
+        vegalite.Def(`type` = "text", clip = Some(clipMark))
 
   private def binToVegalinBin(
       bin: Option[Bin]

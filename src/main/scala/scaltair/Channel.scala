@@ -104,6 +104,9 @@ private case class ColorChannel(
 private case class SizeChannel(private[scaltair] val fieldName: String)
     extends Channel(fieldName, FieldType.Quantitative)
 
+private case class TextChannel(private[scaltair] val fieldName: String)
+    extends Channel(fieldName, FieldType.Nominal)
+
 object Channel:
 
   def X(fieldName: String, fieldType: FieldType): XChannel =
@@ -119,6 +122,8 @@ object Channel:
     ColorChannel(fieldName, fieldType)
 
   def Size(fieldName: String): SizeChannel = SizeChannel(fieldName)
+
+  def Text(fieldName: String): TextChannel = TextChannel(fieldName)
 
 enum AggregateType:
   case Count, Valid, Missing, Distinct, Sum, Mean, Average, Variance, VarianceP,

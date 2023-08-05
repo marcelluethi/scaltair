@@ -25,6 +25,7 @@ enum MarkType:
   case Area extends MarkType
   case Boxplot extends MarkType
   case Errorband extends MarkType
+  case Text extends MarkType
 
 private case class Mark(
     private[scaltair] val markType: MarkType,
@@ -44,6 +45,7 @@ object Mark:
   def Area() = Mark(MarkType.Area, false, 1.0)
   def Boxplot() = Mark(MarkType.Boxplot, false, 1.0)
   def ErrorBand() = Mark(MarkType.Errorband, false, 1.0)
+  def Text() = Mark(MarkType.Text, false, 1.0)
 
 trait View
 

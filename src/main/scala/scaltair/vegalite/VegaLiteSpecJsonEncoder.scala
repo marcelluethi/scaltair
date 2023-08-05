@@ -121,8 +121,9 @@ extension (encoding: EdEncoding)
     val y2Opt = encoding.y2.map(y2 => "y2 " -> y2.toJson())
     val colorOpt = encoding.color.map(color => "color" -> color.toJson())
     val sizeOpt = encoding.size.map(size => "size" -> size.toJson())
+    val textOpt = encoding.text.map(text => "text" -> text.toJson())
     JsonObject(
-      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq
+      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq ++ textOpt.toSeq
     )
 
 extension (layerEncoding: LayerEncoding)
@@ -180,6 +181,12 @@ extension (size: SizeClass)
   def toJson(): JsonValue =
     val fieldOpt = size.field.map(field => "field" -> field.toJson())
     val typeOpt = size.`type`.map(`type` => "type" -> `type`.toJson())
+    JsonObject(fieldOpt.toSeq ++ typeOpt.toSeq)
+
+extension (text: TextDef)
+  def toJson(): JsonValue =
+    val fieldOpt = text.field.map(field => "field" -> field.toJson())
+    val typeOpt = text.`type`.map(`type` => "type" -> `type`.toJson())
     JsonObject(fieldOpt.toSeq ++ typeOpt.toSeq)
 
 extension (field: Field)
