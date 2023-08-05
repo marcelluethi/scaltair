@@ -133,8 +133,9 @@ extension (layerEncoding: LayerEncoding)
     val y2Opt = layerEncoding.y2.map(y2 => "y2 " -> y2.toJson())
     val colorOpt = layerEncoding.color.map(color => "color" -> color.toJson())
     val sizeOpt = layerEncoding.size.map(size => "size" -> size.toJson())
+    val textOpt = layerEncoding.text.map(text => "text" -> text.toJson())
     JsonObject(
-      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq
+      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq ++ textOpt.toSeq
     )
 
 extension (x: XClass)
