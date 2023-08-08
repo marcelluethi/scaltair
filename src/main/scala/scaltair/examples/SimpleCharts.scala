@@ -97,6 +97,25 @@ object SimpleCharts:
       .mark(Mark.Line())
       .show()
 
+  def linePlotWithPointOrdering(): Unit =
+    val xs = Seq(0.0, 1.0, 1.0, 0.0)
+    val ys = Seq(0.0, 0.0, 1.0, 1.0)
+    val ordering = Seq(1, 2, 3, 4)
+    val data = Map(
+      "x" -> xs,
+      "y" -> ys
+    )
+
+    Chart(data)
+      .encode(
+        Channel.X("x", FieldType.Quantitative),
+        Channel.Y("y", FieldType.Quantitative),
+        Channel.Order("ordering")
+      )
+      .mark(Mark.Line())
+      .properties(ChartProperties(title = "line", titleFontSize = 20))
+      .show()
+
   def histogram(): Unit =
     val xs = Seq.fill(1000)(scala.util.Random.nextGaussian())
 
@@ -195,9 +214,10 @@ object SimpleCharts:
     // barChart()
     // scatterPlot()
     // linePlot()
+    linePlotWithPointOrdering()
     // heatMap()
     // lineSeries()
     // histogram()
     // bubblePlot()
     // chartWithLogScaleAndAxisProperties()
-    textChart()
+    // textChart()

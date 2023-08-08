@@ -107,6 +107,9 @@ private case class SizeChannel(private[scaltair] val fieldName: String)
 private case class TextChannel(private[scaltair] val fieldName: String)
     extends Channel(fieldName, FieldType.Nominal)
 
+private case class OrderChannel(private[scaltair] val fieldName: String)
+    extends Channel(fieldName, FieldType.Ordinal)
+
 object Channel:
 
   def X(fieldName: String, fieldType: FieldType): XChannel =
@@ -124,6 +127,8 @@ object Channel:
   def Size(fieldName: String): SizeChannel = SizeChannel(fieldName)
 
   def Text(fieldName: String): TextChannel = TextChannel(fieldName)
+
+  def Order(fieldName: String): OrderChannel = OrderChannel(fieldName)
 
 enum AggregateType:
   case Count, Valid, Missing, Distinct, Sum, Mean, Average, Variance, VarianceP,

@@ -122,8 +122,14 @@ extension (encoding: EdEncoding)
     val colorOpt = encoding.color.map(color => "color" -> color.toJson())
     val sizeOpt = encoding.size.map(size => "size" -> size.toJson())
     val textOpt = encoding.text.map(text => "text" -> text.toJson())
+    val orderOpt = encoding.order.map(order =>
+      order match
+        case odef: OrderDef => "order" -> odef.toJson()
+        case _ => throw new Exception("No json encoding for Order != OrderDef")
+    )
+
     JsonObject(
-      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq ++ textOpt.toSeq
+      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq ++ textOpt.toSeq ++ orderOpt.toSeq
     )
 
 extension (layerEncoding: LayerEncoding)
@@ -134,8 +140,14 @@ extension (layerEncoding: LayerEncoding)
     val colorOpt = layerEncoding.color.map(color => "color" -> color.toJson())
     val sizeOpt = layerEncoding.size.map(size => "size" -> size.toJson())
     val textOpt = layerEncoding.text.map(text => "text" -> text.toJson())
+    val orderOpt = layerEncoding.order.map(order =>
+      order match
+        case odef: OrderDef => "order" -> odef.toJson()
+        case _ => throw new Exception("No json encoding for Order != OrderDef")
+    )
+
     JsonObject(
-      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq ++ textOpt.toSeq
+      xOpt.toSeq ++ yOpt.toSeq ++ colorOpt.toSeq ++ y2Opt.toSeq ++ sizeOpt.toSeq ++ textOpt.toSeq ++ orderOpt.toSeq
     )
 
 extension (x: XClass)
@@ -189,6 +201,11 @@ extension (text: TextDef)
     val fieldOpt = text.field.map(field => "field" -> field.toJson())
     val typeOpt = text.`type`.map(`type` => "type" -> `type`.toJson())
     JsonObject(fieldOpt.toSeq ++ typeOpt.toSeq)
+
+extension (order: OrderDef)
+  def toJson(): JsonValue =
+    val fieldOpt = order.field.map(field => "field" -> field.toJson())
+    JsonObject(fieldOpt.toSeq)
 
 extension (field: Field)
   def toJson(): JsonValue =

@@ -137,6 +137,14 @@ object DSLToVegaSpec:
               )
             )
           )
+        case OrderChannel(fieldName) =>
+          encoding.copy(order =
+            Some(
+              vegalite.OrderDef(
+                field = Some(fieldName)
+              )
+            )
+          )
     )
 
   // the VegaLiteDSL contains almost the same fields as the vegalite.Spec. To avoid
@@ -166,7 +174,8 @@ object DSLToVegaSpec:
       y2 = encoding.y2,
       color = encoding.color,
       size = encoding.size,
-      text = encoding.text
+      text = encoding.text,
+      order = encoding.order
     )
 
   private def columnDataToVegaLiteData(data: ColumnData): vegalite.URLData =
