@@ -249,16 +249,20 @@ extension (aggregate: Aggregate)
   def toJson(): JsonValue =
     JsonString(aggregate.toString())
 
-extension (bin: BinParams | Boolean | String | NullValue)
+extension (bin: BinParams | Boolean | String| NullValue)
   @targetName("toJsonBin")
   def toJson(): JsonValue =
-    bin match
-      case bin: Boolean => JsonBool(bin)
-      case bin: String  => JsonString(bin)
-      case _ =>
-        throw new Exception(
-          "No json encoding for BinParams != Boolean | String"
-        )
+      bin match
+        case bin: Boolean => JsonBool(bin)
+        case bin: String  => JsonString(bin)
+        case bin : BinParams =>           
+          val maxBinOpt = bin.maxbins.map(maxbins => "maxbins" -> JsonNumber(maxbins.toInt))
+          JsonObject(maxBinOpt.toSeq)
+        case _ =>
+          throw new Exception(
+            "No json encoding for BinParams != Boolean | String"
+          )
+
 
 extension (axis: Axis)
   def toJson(): JsonValue =
