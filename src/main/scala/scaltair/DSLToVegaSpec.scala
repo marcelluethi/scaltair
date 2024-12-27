@@ -204,48 +204,69 @@ object DSLToVegaSpec:
       opacity: Double
   ): vegalite.Def =
     mark match
-      case Mark(MarkType.Line, clipMark, opacity) =>
+      case Mark(MarkType.Line, clipMark, opacity, color) =>
         vegalite.Def(
           `type` = "line",
           clip = Some(clipMark),
-          opacity = Some(opacity)
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
         )
-      case Mark(MarkType.Circle, clipMark, opacity) =>
+      case Mark(MarkType.Circle, clipMark, opacity, color) =>
         vegalite.Def(
           `type` = "circle",
           clip = Some(clipMark),
-          opacity = Some(opacity)
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
         )
-      case Mark(MarkType.Rect, clipMark, opacity) =>
+      case Mark(MarkType.Rect, clipMark, opacity, color) =>
         vegalite.Def(
           `type` = "rect",
           clip = Some(clipMark),
-          opacity = Some(opacity)
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
         )
-      case Mark(MarkType.Point, clipMark, opacity) =>
+      case Mark(MarkType.Point, clipMark, opacity, color) =>
         vegalite.Def(
           `type` = "point",
           clip = Some(clipMark),
-          opacity = Some(opacity)
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
         )
-      case Mark(MarkType.Bar, clipMark, opacity) =>
+      case Mark(MarkType.Bar, clipMark, opacity, color) =>
         vegalite.Def(
           `type` = "bar",
           clip = Some(clipMark),
-          opacity = Some(opacity)
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
         )
-      case Mark(MarkType.Area, clipMark, opacity) =>
+      case Mark(MarkType.Area, clipMark, opacity, color) =>
         vegalite.Def(
           `type` = "area",
           clip = Some(clipMark),
-          opacity = Some(opacity)
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
         )
-      case Mark(MarkType.Boxplot, clipMark, opacity) =>
-        vegalite.Def(`type` = "boxplot", clip = Some(clipMark))
-      case Mark(MarkType.Errorband, clipMark, opacity) =>
-        vegalite.Def(`type` = "errorband", clip = Some(clipMark))
-      case Mark(MarkType.Text, clipMark, opacity) =>
-        vegalite.Def(`type` = "text", clip = Some(clipMark))
+      case Mark(MarkType.Boxplot, clipMark, opacity, color) =>
+        vegalite.Def(
+          `type` = "boxplot",
+          clip = Some(clipMark),
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
+        )
+      case Mark(MarkType.Errorband, clipMark, opacity, color) =>
+        vegalite.Def(
+          `type` = "errorband",
+          clip = Some(clipMark),
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
+        )
+      case Mark(MarkType.Text, clipMark, opacity, color) =>
+        vegalite.Def(
+          `type` = "text",
+          clip = Some(clipMark),
+          opacity = Some(opacity),
+          color = color.map(c => colorToVegaLiteColor(c))
+        )
 
   private def binToVegalinBin(
       bin: Option[Bin]
@@ -307,3 +328,7 @@ object DSLToVegaSpec:
           )
         )
       case None => None
+
+  private def colorToVegaLiteColor(color: Color): String =
+    // convert rgb color to hex string
+    f"#${color.r}%02x${color.g}%02x${color.b}%02x"

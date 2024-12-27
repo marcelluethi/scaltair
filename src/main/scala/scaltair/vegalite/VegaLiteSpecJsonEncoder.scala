@@ -28,6 +28,7 @@ package scaltair.vegalite
 import scaltair.json.*
 import scala.annotation.targetName
 import scala.meta.internal.javacp.BaseType.J
+import scala.meta.internal.javacp.BaseType.C
 
 extension (dsl: VegaLiteDSL)
   def toJson(): JsonValue =
@@ -249,20 +250,20 @@ extension (aggregate: Aggregate)
   def toJson(): JsonValue =
     JsonString(aggregate.toString())
 
-extension (bin: BinParams | Boolean | String| NullValue)
+extension (bin: BinParams | Boolean | String | NullValue)
   @targetName("toJsonBin")
   def toJson(): JsonValue =
-      bin match
-        case bin: Boolean => JsonBool(bin)
-        case bin: String  => JsonString(bin)
-        case bin : BinParams =>           
-          val maxBinOpt = bin.maxbins.map(maxbins => "maxbins" -> JsonNumber(maxbins.toInt))
-          JsonObject(maxBinOpt.toSeq)
-        case _ =>
-          throw new Exception(
-            "No json encoding for BinParams != Boolean | String"
-          )
-
+    bin match
+      case bin: Boolean => JsonBool(bin)
+      case bin: String  => JsonString(bin)
+      case bin: BinParams =>
+        val maxBinOpt =
+          bin.maxbins.map(maxbins => "maxbins" -> JsonNumber(maxbins.toInt))
+        JsonObject(maxBinOpt.toSeq)
+      case _ =>
+        throw new Exception(
+          "No json encoding for BinParams != Boolean | String"
+        )
 
 extension (axis: Axis)
   def toJson(): JsonValue =
@@ -306,7 +307,19 @@ extension (mark: Def)
     val typeStr = "type" -> JsonString(mark.`type`)
     val clipOpt = mark.clip.map(clipMark => "clip" -> JsonBool(clipMark))
     val opacityOpt = mark.opacity.map(opacity => "opacity" -> opacity.toJson())
-    JsonObject(typeStr +: (clipOpt.toSeq ++ opacityOpt.toSeq))
+    val colorOpt = mark.color.map(color => "color" -> color.toJson())
+    JsonObject(typeStr +: (clipOpt.toSeq ++ opacityOpt.toSeq ++ colorOpt.toSeq))
+
+extension (markconfigcolor: MarkConfigColor)
+  @targetName("toJsonMarkConfigColor")
+  def toJson(): JsonValue =
+    markconfigcolor match
+      case color: String => JsonString(color)
+      case color: Color  => color.toJson()
+      case _ =>
+        throw new Exception(
+          "No json encoding for MarkConfigColor != String | Color"
+        )
 
 ///////////////////////////
 // Data

@@ -30,22 +30,24 @@ enum MarkType:
 private case class Mark(
     private[scaltair] val markType: MarkType,
     private[scaltair] val clip: Boolean,
-    private[scaltair] val opacity: Double
+    private[scaltair] val opacity: Double,
+    private[scaltair] val color: Option[Color]
 ):
 
   def opacity(opacity: Double): Mark = copy(opacity = opacity)
   def clip(clip: Boolean): Mark = copy(clip = clip)
+  def color(color: Color): Mark = copy(color = Some(color))
 
 object Mark:
-  def Line() = Mark(MarkType.Line, false, 1.0)
-  def Circle() = Mark(MarkType.Circle, false, 1.0)
-  def Rect() = Mark(MarkType.Rect, false, 1.0)
-  def Point() = Mark(MarkType.Point, false, 1.0)
-  def Bar() = Mark(MarkType.Bar, false, 1.0)
-  def Area() = Mark(MarkType.Area, false, 1.0)
-  def Boxplot() = Mark(MarkType.Boxplot, false, 1.0)
-  def ErrorBand() = Mark(MarkType.Errorband, false, 1.0)
-  def Text() = Mark(MarkType.Text, false, 1.0)
+  def Line() = Mark(MarkType.Line, false, 1.0, None)
+  def Circle() = Mark(MarkType.Circle, false, 1.0, None)
+  def Rect() = Mark(MarkType.Rect, false, 1.0, None)
+  def Point() = Mark(MarkType.Point, false, 1.0, None)
+  def Bar() = Mark(MarkType.Bar, false, 1.0, None)
+  def Area() = Mark(MarkType.Area, false, 1.0, None)
+  def Boxplot() = Mark(MarkType.Boxplot, false, 1.0, None)
+  def ErrorBand() = Mark(MarkType.Errorband, false, 1.0, None)
+  def Text() = Mark(MarkType.Text, false, 1.0, None)
 
 trait View
 

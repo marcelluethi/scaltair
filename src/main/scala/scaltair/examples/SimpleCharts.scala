@@ -28,6 +28,7 @@ import scaltair.Domain
 import scaltair.Mark
 import scaltair.ScaleType
 import scaltair.BinProperties
+import scaltair.Color.{Blue, Red}
 
 /** Example charts, which show how to use the vega lite specification directly.
   * This is useful if you want maximum control over the plot.
@@ -130,7 +131,7 @@ object SimpleCharts:
           .binned(BinProperties().maxbins(20)),
         Channel.Y("x", FieldType.Quantitative).count()
       )
-      .mark(Mark.Bar())
+      .mark(Mark.Bar().color(Red))
       .show()
 
   def bubblePlot(): Unit =
@@ -214,10 +215,10 @@ object SimpleCharts:
     // barChart()
     // scatterPlot()
     // linePlot()
-    linePlotWithPointOrdering()
+    // linePlotWithPointOrdering()
     // heatMap()
     // lineSeries()
-    // histogram()
-    // bubblePlot()
-    // chartWithLogScaleAndAxisProperties()
-    // textChart()
+    histogram()
+  // bubblePlot()
+  // chartWithLogScaleAndAxisProperties()
+  // textChart()
