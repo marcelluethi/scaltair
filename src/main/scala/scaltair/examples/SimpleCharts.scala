@@ -214,11 +214,11 @@ object SimpleCharts:
   @main def runSimpleCharts() =
     // barChart()
     // scatterPlot()
-    // linePlot()
+    linePlot()
     // linePlotWithPointOrdering()
     // heatMap()
     // lineSeries()
-    histogram()
+    //histogram()
   // bubblePlot()
   // chartWithLogScaleAndAxisProperties()
   // textChart()

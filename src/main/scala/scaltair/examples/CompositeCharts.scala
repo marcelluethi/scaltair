@@ -27,11 +27,12 @@ import scaltair.Mark
 
 object CompositeCharts:
 
+
   val data = Map(
-    "shoe-size" -> Seq(38, 42, 43, 44, 47),
-    "stature" -> Seq(150, 170, 172, 180, 195),
     "weight" -> Seq(55, 75, 70, 75, 100),
-    "sex" -> Seq("f", "f", "m", "m", "m")
+    "stature" -> Seq(150, 170, 172, 180, 195),
+    "sex" -> Seq("f", "f", "m", "m", "m"),
+    "shoe-size" -> Seq(38, 42, 43, 44, 47)
   )
 
   def layeredChart(): Unit =

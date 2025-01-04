@@ -109,8 +109,7 @@ object Chart:
       * data, but can have different encodings.
       */
     def overlay(other: ChartWithSingleView): ChartWithLayeredView =
-      require(data == other.data, "Both charts need to have the same data")
-      ChartWithLayeredView(data, LayeredView(Seq(view, other.view)))
+      ChartWithLayeredView(Seq((data, view), (other.data, other.view)))
 
     /** Clip the mark to the chart size.
       */
@@ -126,15 +125,14 @@ object Chart:
     * @param view
     */
   case class ChartWithLayeredView(
-      data: ColumnData,
-      view: LayeredView
+      dataAndViews: Seq[(ColumnData, SingleView)]
   ) extends CompleteChart:
 
     /** Overlay the chart with another chart. Both charts need to have the same
       * data, but can have different encodings.
       */
     def overlay(other: ChartWithSingleView): ChartWithLayeredView =
-      ChartWithLayeredView(data, LayeredView(view.views :+ other.view))
+      ChartWithLayeredView(dataAndViews :+ (other.data, other.view))
 
   /** A chart consisting of two, horizontally concatenated charts.
     */

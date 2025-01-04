@@ -1,9 +1,7 @@
 package scaltair
 
-import scaltair.vegalite.VegaLiteDSL
+import scaltair.vegalite.{EdEncoding, InlineDataset, InlineDatasetElement, NonArgAggregateOp, VegaLiteDSL}
 import scaltair.Data.ColumnData
-import scaltair.vegalite.NonArgAggregateOp
-import scaltair.vegalite.EdEncoding
 import dotty.tools.dotc.semanticdb.SymbolInformation.Property.DEFAULT
 
 object DSLToVegaSpec:
@@ -25,14 +23,15 @@ object DSLToVegaSpec:
           height = Some(DEFAULT_HEIGHT)
         )
 
-      case ChartWithLayeredView(data, layeredView) =>
+      case ChartWithLayeredView(dataAndViews) =>
         VegaLiteDSL(
-          data = Some(columnDataToVegaLiteData(data)),
           layer = Some(
-            layeredView.views
-              .map(view =>
+            dataAndViews
+              .map(dataAndview =>
+                val (data, view) = dataAndview
                 vegalite
                   .LayerSpec(
+                    data = Some(columnDataToVegaLiteData(data)),
                     encoding = Some(
                       edEncodingToLayerEncoding(createEncoding(view.channels))
                     ),

@@ -57,5 +57,3 @@ private case class SingleView(
     clip: Boolean,
     opacity: Double
 ) extends View
-
-private case class LayeredView(views: Seq[SingleView]) extends View
