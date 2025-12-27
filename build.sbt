@@ -1,6 +1,6 @@
 ThisBuild / organization := "ch.unibas.cs.gravis"
 ThisBuild / version := "0.2-SNAPSHOT"
-ThisBuild / scalaVersion := "3.3.0"
+ThisBuild / scalaVersion := "3.7.0"
 
 ThisBuild / homepage := Some(url("https://github.com/marcelluethi/scaltair"))
 ThisBuild / licenses += ("Apache-2.0", url(
@@ -16,7 +16,7 @@ ThisBuild / developers := List(
   Developer(
     "marcelluethi",
     "marcelluethi",
-    "marcel.luethi@unibas.ch",
+    "marcel.luethi@protonmail.com ",
     url("https://github.com/marcelluethi")
   )
 )
@@ -26,17 +26,13 @@ lazy val root = (project in file("."))
   .settings(
     name := """scaltair""",
     publishMavenStyle := true,
-    publishTo := Some(
+    publishTo := {
       if (isSnapshot.value)
-        Opts.resolver.sonatypeSnapshots
+        Some("Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/")
       else
-        Opts.resolver.sonatypeStaging
-    ),
-    resolvers ++= Seq(
-      Resolver.jcenterRepo,
-      Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots")
-    ),
+        Some("Central Portal Releases" at "https://central.sonatype.com/api/v1/publisher/upload?publishingType=automatic")
+    },
+    resolvers ++= Resolver.sonatypeOssRepos("releases") ++ Resolver.sonatypeOssRepos("snapshots"),
     scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case _ =>
         Seq(
@@ -62,12 +58,12 @@ lazy val jupyter = (project in file("jupyter"))
   .settings(
     name := """scaltair-jupyter""",
     publishMavenStyle := true,
-    publishTo := Some(
+    publishTo := {
       if (isSnapshot.value)
-        Opts.resolver.sonatypeSnapshots
+        Some("Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/")
       else
-        Opts.resolver.sonatypeStaging
-    ),
+        Some("Central Portal Releases" at "https://central.sonatype.com/api/v1/publisher/upload?publishingType=automatic")
+    },
     libraryDependencies += (
       "sh.almond" % "scala-kernel-api" % "0.13.0" % Provided
     )
