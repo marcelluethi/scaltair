@@ -27,8 +27,7 @@ package scaltair.vegalite
 
 import scaltair.json.*
 import scala.annotation.targetName
-import scala.meta.internal.javacp.BaseType.J
-import scala.meta.internal.javacp.BaseType.C
+
 
 extension (dsl: VegaLiteDSL)
   def toJson(): JsonValue =
